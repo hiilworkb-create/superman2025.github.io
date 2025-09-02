@@ -234,7 +234,7 @@ document.querySelectorAll('.doc-btn').forEach(btn=>{
   });
 });
 
-// submit — теперь ведёт на шаг "Я не робот"
+// submit — ведёт на шаг "Я не робот"
 wizardForm.addEventListener('submit', e=>{
   e.preventDefault();
   if (!docnumber.checkValidity()) {
