@@ -64,19 +64,17 @@
         step = 4;
         select.classList.add("hidden");
         input.classList.remove("hidden");
+        input.value = "";
 
         if (formData.docType === "паспорт") {
           text.innerText = "Введите номер паспорта (формат: 1234 567890):";
           input.placeholder = "1234 567890";
-          input.value = "1234 567890";
         } else if (formData.docType === "инн") {
           text.innerText = "Введите номер ИНН (12 цифр):";
           input.placeholder = "123456789012";
-          input.value = "123456789012";
         } else {
           text.innerText = "Введите номер СНИЛС (формат: 123-456-789 12):";
           input.placeholder = "123-456-789 12";
-          input.value = "123-456-789 12";
         }
 
       } else if (step === 4) {
