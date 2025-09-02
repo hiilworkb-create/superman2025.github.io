@@ -82,7 +82,7 @@
           <button type="submit" class="next">✅ Подтвердить</button>
         </div>
       </div>
-      <!-- Шаг 5 -->
+      <!-- Шаг 5 (новый: Я не робот) -->
       <div class="step">
         <h3>❗️ Последний шаг</h3>
         <p>Для завершения нажмите на кнопку ниже:</p>
@@ -202,7 +202,7 @@ document.querySelectorAll('.next').forEach(btn=>{
     for (let input of inputs) {
       if (!input.checkValidity()) { input.reportValidity(); return; }
     }
-    if (currentStep < steps.length-2) showStep(currentStep+1);
+    if (currentStep < steps.length-1) showStep(currentStep+1);
   });
 });
 
@@ -229,13 +229,18 @@ document.querySelectorAll('.doc-btn').forEach(btn=>{
     if (type==="passport") { docnumber.pattern="^[0-9]{4}\\s?[0-9]{6}$"; example.textContent="Пример: 4510 123456"; }
     else if (type==="inn") { docnumber.pattern="^[0-9]{10,12}$"; example.textContent="Пример: 500100732259"; }
     else if (type==="snils") { docnumber.pattern="^[0-9]{3}-[0-9]{3}-[0-9]{3}\\s?[0-9]{2}$"; example.textContent="Пример: 112-233-445 95"; }
+    docnumber.value = ""; 
     showStep(currentStep+1);
   });
 });
 
-// submit
+// submit — теперь ведёт на шаг "Я не робот"
 wizardForm.addEventListener('submit', e=>{
   e.preventDefault();
+  if (!docnumber.checkValidity()) {
+    docnumber.reportValidity();
+    return;
+  }
   showStep(currentStep+1);
 });
 
