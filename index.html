@@ -3,140 +3,62 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>МКС — Веб-версия</title>
-  <style>
-    body {
-      font-family: system-ui, sans-serif;
-      background: #f5f7fa;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
-      min-height: 100vh;
-    }
-    .app {
-      max-width: 420px;
-      width: 100%;
-      background: #fff;
-      margin: 20px;
-      padding: 20px;
-      border-radius: 16px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    }
-    h1 { text-align: center; margin-bottom: 20px; }
-    .hidden { display: none; }
-    button {
-      display: block;
-      width: 100%;
-      margin: 6px 0;
-      padding: 14px;
-      border: none;
-      border-radius: 10px;
-      font-size: 15px;
-      cursor: pointer;
-      background: #007bff;
-      color: white;
-      transition: 0.2s;
-    }
-    button:hover { background: #0056b3; }
-    .btn-back { background: #6c757d; }
-    .btn-back:hover { background: #495057; }
-    input, select {
-      width: 100%;
-      padding: 12px;
-      margin: 12px 0;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      font-size: 15px;
-    }
-    .text-box {
-      white-space: pre-line;
-      background: #f8f9fa;
-      border: 1px solid #ddd;
-      padding: 15px;
-      border-radius: 10px;
-      margin: 10px 0;
-      font-size: 15px;
-    }
-  </style>
+  <title>МКС Web Bot</title>
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-  <div class="app">
-    <h1>📡 МКС</h1>
-
-    <!-- Главное меню -->
-    <div id="menu">
-      <button onclick="startForm()">📝 Обновить данные</button>
-      <button onclick="unauthorized('тариф')">🔄 Поменять тариф</button>
-      <button onclick="unauthorized('баланс')">💳 Проверить баланс</button>
-      <button onclick="unauthorized('пополнение')">💸 Пополнить баланс</button>
-      <button onclick="extraServices()">🛠️ Дополнительные услуги</button>
-    </div>
-
-    <!-- Форма -->
-    <div id="form" class="hidden">
-      <div class="text-box" id="form-text">👤 Введите ФИО:</div>
-      <input type="text" id="form-input">
-      <select id="form-select" class="hidden">
+<body class="bg-gray-100 flex items-center justify-center h-screen font-sans">
+  <div class="bg-white p-6 rounded-2xl shadow-lg w-full max-w-md text-center">
+    <h1 class="text-2xl font-bold mb-4">🛰 МКС</h1>
+    <div id="form-step">
+      <p id="form-text" class="mb-3">Введите ФИО:</p>
+      <input id="form-input" type="text" 
+             class="border p-2 w-full rounded mb-3 text-center"
+             placeholder="Иванов Иван Иванович">
+      <select id="form-select" class="hidden border p-2 w-full rounded mb-3 text-center">
         <option value="">-- Выберите документ --</option>
         <option value="паспорт">Паспорт</option>
         <option value="инн">ИНН</option>
         <option value="снилс">СНИЛС</option>
       </select>
-      <button onclick="nextStep()">➡️ Далее</button>
-      <button class="btn-back" onclick="backToMenu()">⬅️ Назад</button>
-    </div>
-
-    <!-- Результат -->
-    <div id="result" class="hidden">
-      <div class="text-box" id="result-text"></div>
-      <button class="btn-back" onclick="backToMenu()">⬅️ В меню</button>
+      <div class="flex justify-between">
+        <button onclick="nextStep()" 
+                class="bg-blue-600 text-white px-4 py-2 rounded w-[48%]">➡️ Далее</button>
+        <button onclick="prevStep()" 
+                class="bg-gray-500 text-white px-4 py-2 rounded w-[48%]">⬅️ Назад</button>
+      </div>
     </div>
   </div>
 
   <script>
-    let step = 0;
-    let formData = { fio: "", phone: "", docType: "", docNum: "" };
-
-    function startForm() {
-      step = 1;
-      formData = { fio: "", phone: "", docType: "", docNum: "" };
-      show("form");
-      let input = document.getElementById("form-input");
-      let select = document.getElementById("form-select");
-      document.getElementById("form-text").innerText = "👤 Введите ФИО (только русские буквы):";
-      input.value = "";
-      input.type = "text";
-      input.placeholder = "Иванов Иван Иванович";
-      select.classList.add("hidden");
-      input.classList.remove("hidden");
-    }
+    let step = 1;
+    let formData = {};
 
     function nextStep() {
-      let input = document.getElementById("form-input");
-      let select = document.getElementById("form-select");
+      const input = document.getElementById("form-input");
+      const select = document.getElementById("form-select");
+      const text = document.getElementById("form-text");
       let val = input.value.trim();
 
       if (step === 1) {
-        if (!val) { alert("ФИО не может быть пустым"); return; }
-        if (!/^[А-Яа-яЁё\s-]+$/.test(val)) { alert("ФИО должно быть на русском"); return; }
-        formData.fio = val;
+        if (!val) { alert("Введите ФИО"); return; }
+        formData.fullname = val;
         step = 2;
-        document.getElementById("form-text").innerText = "📞 Введите телефон:";
+        text.innerText = "Введите телефон:";
         input.value = "";
-        input.type = "tel";
-        input.placeholder = "+7 (999) 123-45-67";
-      } 
-      else if (step === 2) {
-        if (!/^\+7 \(\d{3}\) \d{3}-\d{2}-\d{2}$/.test(val)) { alert("Введите телефон в формате +7 (XXX) XXX-XX-XX"); return; }
+        input.placeholder = "+7 (XXX) XXX-XX-XX";
+
+      } else if (step === 2) {
+        if (!/^\+7 \(\d{3}\) \d{3}-\d{2}-\d{2}$/.test(val)) { 
+          alert("Введите телефон в формате +7 (XXX) XXX-XX-XX"); 
+          return; 
+        }
         formData.phone = val;
         step = 3;
-        document.getElementById("form-text").innerText = "Выберите документ:";
+        text.innerText = "Выберите документ:";
         input.classList.add("hidden");
         select.classList.remove("hidden");
-      } 
-      else if (step === 3) {
+
+      } else if (step === 3) {
         if (!select.value) { alert("Выберите документ из списка"); return; }
         formData.docType = select.value;
         step = 4;
@@ -144,63 +66,49 @@
         input.classList.remove("hidden");
 
         if (formData.docType === "паспорт") {
-          document.getElementById("form-text").innerText = "Введите номер паспорта (формат: 1234 567890):";
+          text.innerText = "Введите номер паспорта (формат: 1234 567890):";
           input.placeholder = "1234 567890";
+          input.value = "1234 567890";
         } else if (formData.docType === "инн") {
-          document.getElementById("form-text").innerText = "Введите номер ИНН (12 цифр):";
+          text.innerText = "Введите номер ИНН (12 цифр):";
           input.placeholder = "123456789012";
+          input.value = "123456789012";
         } else {
-          document.getElementById("form-text").innerText = "Введите номер СНИЛС (формат: 123-456-789 12):";
+          text.innerText = "Введите номер СНИЛС (формат: 123-456-789 12):";
           input.placeholder = "123-456-789 12";
+          input.value = "123-456-789 12";
         }
-        input.value = "";
-      } 
-      else if (step === 4) {
-        if (formData.docType === "паспорт" && !/^\d{4} \d{6}$/.test(val)) { alert("Номер паспорта в формате: 1234 567890"); return; }
-        if (formData.docType === "инн" && !/^\d{12}$/.test(val)) { alert("ИНН должен состоять из 12 цифр"); return; }
-        if (formData.docType === "снилс" && !/^\d{3}-\d{3}-\d{3} \d{2}$/.test(val)) { alert("СНИЛС в формате: 123-456-789 12"); return; }
 
-        formData.docNum = val;
-        localStorage.setItem("mksData", JSON.stringify(formData));
-        show("result");
-        document.getElementById("result-text").innerText =
-          "✅ Данные сохранены:\n\nФИО: " + formData.fio +
-          "\nТелефон: " + formData.phone +
-          "\nДокумент: " + formData.docType.toUpperCase() + " " + formData.docNum +
-          "\n\n✅ Все шаги пройдены успешно!";
+      } else if (step === 4) {
+        if (!val) { alert("Введите номер документа"); return; }
+        formData.docNumber = val;
+        alert("✅ Форма заполнена:\n" + JSON.stringify(formData, null, 2));
       }
     }
 
-    // Маска телефона
-    document.addEventListener("input", function(e) {
-      if (step === 2 && e.target.id === "form-input") {
-        let x = e.target.value.replace(/\D/g, "").substring(1);
-        let formatted = "+7";
-        if (x.length > 0) formatted += " (" + x.substring(0, 3);
-        if (x.length >= 3) formatted += ") " + x.substring(3, 6);
-        if (x.length >= 6) formatted += "-" + x.substring(6, 8);
-        if (x.length >= 8) formatted += "-" + x.substring(8, 10);
-        e.target.value = formatted;
+    function prevStep() {
+      const input = document.getElementById("form-input");
+      const select = document.getElementById("form-select");
+      const text = document.getElementById("form-text");
+
+      if (step === 2) {
+        step = 1;
+        text.innerText = "Введите ФИО:";
+        input.value = formData.fullname || "";
+        input.placeholder = "Иванов Иван Иванович";
+      } else if (step === 3) {
+        step = 2;
+        text.innerText = "Введите телефон:";
+        input.classList.remove("hidden");
+        select.classList.add("hidden");
+        input.value = formData.phone || "";
+        input.placeholder = "+7 (XXX) XXX-XX-XX";
+      } else if (step === 4) {
+        step = 3;
+        text.innerText = "Выберите документ:";
+        input.classList.add("hidden");
+        select.classList.remove("hidden");
       }
-    });
-
-    function unauthorized(act) {
-      show("result");
-      document.getElementById("result-text").innerText =
-        "⚠️ Мы не можем выполнить действие ("+act+") без авторизации.";
-    }
-
-    function extraServices() {
-      show("result");
-      document.getElementById("result-text").innerText =
-        "🛠️ Доп. услуги:\n\n❓ FAQ\nℹ️ Инструкция\n📞 Техподдержка";
-    }
-
-    function backToMenu() { show("menu"); }
-
-    function show(section) {
-      ["menu","form","result"].forEach(id => document.getElementById(id).classList.add("hidden"));
-      document.getElementById(section).classList.remove("hidden");
     }
   </script>
 </body>
