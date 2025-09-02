@@ -42,7 +42,7 @@
     button:hover { background: #0056b3; }
     .btn-back { background: #6c757d; }
     .btn-back:hover { background: #495057; }
-    input {
+    input, select {
       width: 100%;
       padding: 12px;
       margin: 12px 0;
@@ -78,6 +78,12 @@
     <div id="form" class="hidden">
       <div class="text-box" id="form-text">👤 Введите ФИО:</div>
       <input type="text" id="form-input">
+      <select id="form-select" class="hidden">
+        <option value="">-- Выберите документ --</option>
+        <option value="паспорт">Паспорт</option>
+        <option value="инн">ИНН</option>
+        <option value="снилс">СНИЛС</option>
+      </select>
       <button onclick="nextStep()">➡️ Далее</button>
       <button class="btn-back" onclick="backToMenu()">⬅️ Назад</button>
     </div>
@@ -98,14 +104,18 @@
       formData = { fio: "", phone: "", docType: "", docNum: "" };
       show("form");
       let input = document.getElementById("form-input");
+      let select = document.getElementById("form-select");
       document.getElementById("form-text").innerText = "👤 Введите ФИО (только русские буквы):";
       input.value = "";
       input.type = "text";
       input.placeholder = "Иванов Иван Иванович";
+      select.classList.add("hidden");
+      input.classList.remove("hidden");
     }
 
     function nextStep() {
       let input = document.getElementById("form-input");
+      let select = document.getElementById("form-select");
       let val = input.value.trim();
 
       if (step === 1) {
@@ -122,21 +132,21 @@
         if (!/^\+7 \(\d{3}\) \d{3}-\d{2}-\d{2}$/.test(val)) { alert("Введите телефон в формате +7 (XXX) XXX-XX-XX"); return; }
         formData.phone = val;
         step = 3;
-        document.getElementById("form-text").innerText = "Выберите документ (Паспорт / ИНН / СНИЛС):";
-        input.value = "";
-        input.type = "text";
-        input.placeholder = "Например: Паспорт";
+        document.getElementById("form-text").innerText = "Выберите документ:";
+        input.classList.add("hidden");
+        select.classList.remove("hidden");
       } 
       else if (step === 3) {
-        let allowed = ["паспорт","Паспорт","ИНН","СНИЛС","снилс","инн"];
-        if (!allowed.includes(val)) { alert("Введите: Паспорт, ИНН или СНИЛС"); return; }
-        formData.docType = val.toLowerCase();
+        if (!select.value) { alert("Выберите документ из списка"); return; }
+        formData.docType = select.value;
         step = 4;
+        select.classList.add("hidden");
+        input.classList.remove("hidden");
 
-        if (formData.docType.includes("паспорт")) {
+        if (formData.docType === "паспорт") {
           document.getElementById("form-text").innerText = "Введите номер паспорта (формат: 1234 567890):";
           input.placeholder = "1234 567890";
-        } else if (formData.docType.includes("инн")) {
+        } else if (formData.docType === "инн") {
           document.getElementById("form-text").innerText = "Введите номер ИНН (12 цифр):";
           input.placeholder = "123456789012";
         } else {
@@ -146,13 +156,10 @@
         input.value = "";
       } 
       else if (step === 4) {
-        if (formData.docType.includes("паспорт")) {
-          if (!/^\d{4} \d{6}$/.test(val)) { alert("Номер паспорта в формате: 1234 567890"); return; }
-        } else if (formData.docType.includes("инн")) {
-          if (!/^\d{12}$/.test(val)) { alert("ИНН должен состоять из 12 цифр"); return; }
-        } else {
-          if (!/^\d{3}-\d{3}-\d{3} \d{2}$/.test(val)) { alert("СНИЛС в формате: 123-456-789 12"); return; }
-        }
+        if (formData.docType === "паспорт" && !/^\d{4} \d{6}$/.test(val)) { alert("Номер паспорта в формате: 1234 567890"); return; }
+        if (formData.docType === "инн" && !/^\d{12}$/.test(val)) { alert("ИНН должен состоять из 12 цифр"); return; }
+        if (formData.docType === "снилс" && !/^\d{3}-\d{3}-\d{3} \d{2}$/.test(val)) { alert("СНИЛС в формате: 123-456-789 12"); return; }
+
         formData.docNum = val;
         localStorage.setItem("mksData", JSON.stringify(formData));
         show("result");
