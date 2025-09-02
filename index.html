@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>МКС Бот — Веб-версия</title>
+  <title>МКС Бот — Веб версия</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      background: #f7f9fc;
+      background: #f5f7fa;
       margin: 0;
       padding: 0;
       display: flex;
@@ -16,149 +16,154 @@
       min-height: 100vh;
     }
     .app {
+      max-width: 420px;
       width: 100%;
-      max-width: 480px;
       background: #fff;
+      margin-top: 40px;
       padding: 20px;
-      margin-top: 20px;
       border-radius: 12px;
       box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     }
-    h1 {
-      font-size: 20px;
-      margin-bottom: 16px;
+    h1, h2 {
       text-align: center;
     }
     button {
       display: block;
       width: 100%;
-      margin: 8px 0;
+      margin: 10px 0;
       padding: 12px;
-      font-size: 16px;
       border: none;
       border-radius: 8px;
+      font-size: 16px;
       cursor: pointer;
-      background: #007bff;
-      color: #fff;
       transition: 0.3s;
     }
-    button:hover {
-      background: #0056b3;
-    }
-    .hidden {
-      display: none;
-    }
+    .btn-main { background: #007bff; color: white; }
+    .btn-main:hover { background: #0056b3; }
+    .btn-back { background: #6c757d; color: white; }
+    .btn-back:hover { background: #495057; }
     input {
       width: 100%;
       padding: 10px;
-      margin: 8px 0;
-      font-size: 16px;
+      margin: 10px 0;
       border: 1px solid #ccc;
       border-radius: 8px;
+      font-size: 16px;
     }
-    .back-btn {
-      background: #6c757d;
-    }
-    .back-btn:hover {
-      background: #495057;
+    .hidden { display: none; }
+    .text-box {
+      white-space: pre-line;
+      background: #f1f3f5;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 15px;
     }
   </style>
 </head>
 <body>
   <div class="app">
-    <h1>👋 Добро пожаловать в МКС!</h1>
+    <h1>👋 Добро пожаловать в МКС</h1>
 
     <!-- Главное меню -->
     <div id="menu">
-      <button onclick="startUpdate()">📝 Обновить данные</button>
-      <button onclick="checkBalance()">💳 Проверить баланс</button>
-      <button onclick="showFAQ()">ℹ️ FAQ</button>
-      <button onclick="authorize()">🔑 Авторизация</button>
+      <button class="btn-main" onclick="startForm()">📝 Обновить данные</button>
+      <button class="btn-main" onclick="checkBalance()">💳 Проверить баланс</button>
+      <button class="btn-main" onclick="showFAQ()">ℹ️ FAQ</button>
+      <button class="btn-main" onclick="authorize()">🔑 Авторизация</button>
     </div>
 
-    <!-- Форма обновления данных -->
+    <!-- Форма -->
     <div id="form" class="hidden">
-      <h2 id="form-title">Введите ФИО:</h2>
+      <h2 id="form-title">Введите ФИО</h2>
       <input type="text" id="form-input" placeholder="">
-      <button onclick="nextStep()">➡️ Далее</button>
-      <button class="back-btn" onclick="goBack()">⬅️ Назад</button>
+      <button class="btn-main" onclick="nextStep()">➡️ Далее</button>
+      <button class="btn-back" onclick="cancelForm()">⬅️ Назад</button>
     </div>
 
     <!-- Результат -->
-    <div id="result" class="hidden"></div>
+    <div id="result" class="hidden">
+      <div id="result-text" class="text-box"></div>
+      <button class="btn-back" onclick="backToMenu()">⬅️ Назад в меню</button>
+    </div>
   </div>
 
   <script>
     let step = 0;
-    let data = { fio: "", phone: "", doc: "" };
+    let formData = { fio: "", phone: "", doc: "" };
 
-    function startUpdate() {
+    // Начать ввод данных
+    function startForm() {
       step = 1;
       document.getElementById("menu").classList.add("hidden");
+      document.getElementById("result").classList.add("hidden");
       document.getElementById("form").classList.remove("hidden");
-      document.getElementById("form-title").textContent = "Введите ФИО:";
+      document.getElementById("form-title").innerText = "Введите ФИО:";
       document.getElementById("form-input").value = "";
     }
 
+    // Обработка шагов
     function nextStep() {
-      let input = document.getElementById("form-input").value.trim();
-      if (!input) {
-        alert("Пожалуйста, заполните поле!");
-        return;
-      }
+      let value = document.getElementById("form-input").value.trim();
+      if (!value) { alert("Поле не может быть пустым"); return; }
 
       if (step === 1) {
-        data.fio = input;
+        formData.fio = value;
         step = 2;
-        document.getElementById("form-title").textContent = "Введите телефон:";
+        document.getElementById("form-title").innerText = "Введите телефон:";
         document.getElementById("form-input").value = "";
       } else if (step === 2) {
-        data.phone = input;
+        formData.phone = value;
         step = 3;
-        document.getElementById("form-title").textContent = "Введите документ:";
+        document.getElementById("form-title").innerText = "Введите документ:";
         document.getElementById("form-input").value = "";
       } else if (step === 3) {
-        data.doc = input;
-        localStorage.setItem("userData", JSON.stringify(data));
-        showResult("✅ Данные сохранены:\n\nФИО: " + data.fio + "\nТелефон: " + data.phone + "\nДокумент: " + data.doc);
+        formData.doc = value;
+        localStorage.setItem("userData", JSON.stringify(formData));
+        showResult("✅ Данные сохранены:\n\nФИО: " + formData.fio + 
+                   "\nТелефон: " + formData.phone + 
+                   "\nДокумент: " + formData.doc);
       }
     }
 
-    function goBack() {
+    // Отмена
+    function cancelForm() {
       document.getElementById("form").classList.add("hidden");
       document.getElementById("menu").classList.remove("hidden");
     }
 
+    // Показ результата
     function showResult(text) {
       document.getElementById("form").classList.add("hidden");
       document.getElementById("menu").classList.add("hidden");
-      let res = document.getElementById("result");
-      res.classList.remove("hidden");
-      res.innerText = text;
-      let btn = document.createElement("button");
-      btn.textContent = "⬅️ Назад в меню";
-      btn.onclick = () => {
-        res.classList.add("hidden");
-        document.getElementById("menu").classList.remove("hidden");
-      };
-      res.appendChild(btn);
+      document.getElementById("result").classList.remove("hidden");
+      document.getElementById("result-text").innerText = text;
     }
 
+    function backToMenu() {
+      document.getElementById("result").classList.add("hidden");
+      document.getElementById("menu").classList.remove("hidden");
+    }
+
+    // Проверить баланс
     function checkBalance() {
       let saved = JSON.parse(localStorage.getItem("userData"));
       if (saved) {
-        showResult("💳 Ваш баланс: 1000₴\n\nФИО: " + saved.fio + "\nТелефон: " + saved.phone);
+        showResult("💳 Баланс: 1000₴\n\nФИО: " + saved.fio + 
+                   "\nТелефон: " + saved.phone + 
+                   "\nДокумент: " + saved.doc);
       } else {
-        showResult("ℹ️ Нет сохранённых данных. Нажмите 'Обновить данные'.");
+        showResult("⚠️ Нет сохранённых данных.\nСначала обновите данные.");
       }
     }
 
+    // FAQ
     function showFAQ() {
-      showResult("❓ Часто задаваемые вопросы:\n\n1. Как обновить данные?\n— Нажмите 'Обновить данные'.\n\n2. Как проверить баланс?\n— Нажмите 'Проверить баланс'.");
+      showResult("ℹ️ FAQ:\n\n1. Как обновить данные?\n— Нажмите 'Обновить данные'.\n\n2. Где баланс?\n— В меню выберите 'Проверить баланс'.");
     }
 
+    // Авторизация
     function authorize() {
-      showResult("🔑 Авторизация выполнена успешно!");
+      showResult("🔑 Авторизация прошла успешно!");
     }
   </script>
 </body>
