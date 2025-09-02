@@ -1,135 +1,158 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>МКС-бот</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-        }
-        .menu-button {
-            display: inline-block;
-            margin: 5px;
-            padding: 10px 20px;
-            background-color: #007BFF;
-            color: white;
-            text-decoration: none;
-            border-radius: 5px;
-        }
-        .menu-button:hover {
-            background-color: #0056b3;
-        }
-        .form-input {
-            margin: 10px 0;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>МКС — Веб-версия</title>
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      background: #f5f7fa;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+    }
+    .app {
+      max-width: 420px;
+      width: 100%;
+      background: #fff;
+      margin: 20px;
+      padding: 20px;
+      border-radius: 16px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    h1 { text-align: center; margin-bottom: 20px; }
+    .hidden { display: none; }
+    button {
+      display: block;
+      width: 100%;
+      margin: 6px 0;
+      padding: 14px;
+      border: none;
+      border-radius: 10px;
+      font-size: 15px;
+      cursor: pointer;
+      background: #007bff;
+      color: white;
+      transition: 0.2s;
+    }
+    button:hover { background: #0056b3; }
+    .btn-back { background: #6c757d; }
+    .btn-back:hover { background: #495057; }
+    input {
+      width: 100%;
+      padding: 12px;
+      margin: 12px 0;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 15px;
+    }
+    .text-box {
+      white-space: pre-line;
+      background: #f8f9fa;
+      border: 1px solid #ddd;
+      padding: 15px;
+      border-radius: 10px;
+      margin: 10px 0;
+      font-size: 15px;
+    }
+  </style>
 </head>
 <body>
-    <h1>Добро пожаловать в МКС-бот!</h1>
-    <p>Управляйте своими услугами легко и быстро!</p>
+  <div class="app">
+    <h1>📡 МКС</h1>
+
+    <!-- Главное меню -->
     <div id="menu">
-        <a href="#" class="menu-button" onclick="showForm('fullname')">📝 Обновить данные</a>
-        <a href="#" class="menu-button" onclick="showForm('tariff')">🔄 Поменять тариф</a>
-        <a href="#" class="menu-button" onclick="showForm('balance')">💳 Проверить баланс</a>
-        <a href="#" class="menu-button" onclick="showForm('refill')">💸 Пополнить баланс</a>
-        <a href="#" class="menu-button" onclick="showForm('additional')">🛠️ Дополнительные услуги</a>
+      <button onclick="startForm()">📝 Обновить данные</button>
+      <button onclick="unauthorized('тариф')">🔄 Поменять тариф</button>
+      <button onclick="unauthorized('баланс')">💳 Проверить баланс</button>
+      <button onclick="unauthorized('пополнение')">💸 Пополнить баланс</button>
+      <button onclick="extraServices()">🛠️ Дополнительные услуги</button>
     </div>
-    <div id="form-container" style="display: none;">
-        <form id="user-form">
-            <div id="fullname-form" class="form-input">
-                <label for="fullname">Фамилия Имя Отчество:</label>
-                <input type="text" id="fullname" name="fullname">
-                <button type="button" onclick="nextStep('phone')">Далее</button>
-            </div>
-            <div id="phone-form" class="form-input" style="display: none;">
-                <label for="phone">Номер телефона:</label>
-                <input type="text" id="phone" name="phone">
-                <button type="button" onclick="nextStep('document')">Далее</button>
-            </div>
-            <div id="document-form" class="form-input" style="display: none;">
-                <label for="document-type">Выберите документ:</label>
-                <select id="document-type" name="document-type">
-                    <option value="passport">Паспорт</option>
-                    <option value="inn">ИНН</option>
-                    <option value="snils">СНИЛС</option>
-                </select>
-                <input type="text" id="document-number" name="document-number" placeholder="Номер документа">
-                <button type="button" onclick="submitForm()">Отправить</button>
-            </div>
-        </form>
+
+    <!-- Форма -->
+    <div id="form" class="hidden">
+      <div class="text-box" id="form-text">👤 Введите ФИО:</div>
+      <input type="text" id="form-input">
+      <button onclick="nextStep()">➡️ Далее</button>
+      <button class="btn-back" onclick="backToMenu()">⬅️ Назад</button>
     </div>
-    <div id="additional-services" style="display: none;">
-        <a href="#" class="menu-button" onclick="showFAQ()">❓ Часто задаваемые вопросы</a>
-        <a href="#" class="menu-button" onclick="showInstruction()">ℹ️ Инструкция</a>
-        <a href="#" class="menu-button" onclick="contactSupport()">📞 Связаться с техподдержкой</a>
-        <a href="#" class="menu-button" onclick="backToMenu()">↩️ Вернуться назад</a>
+
+    <!-- Результат -->
+    <div id="result" class="hidden">
+      <div class="text-box" id="result-text"></div>
+      <button class="btn-back" onclick="backToMenu()">⬅️ В меню</button>
     </div>
-    <div id="faq" style="display: none;">
-        <h2>Часто задаваемые вопросы</h2>
-        <p>⏳ До какого числа нужно передавать показания?</p>
-        <p>💸 Что будет, если не передать данные вовремя?</p>
-        <p>🔒 Это безопасно?</p>
-        <p>⚡️ Почему через Telegram?</p>
-        <p>🔁 Можно ли исправить ошибку?</p>
-        <p>📑 Какие документы можно использовать?</p>
-        <a href="#" class="menu-button" onclick="backToMenu()">↩️ Вернуться назад</a>
-    </div>
-    <script>
-        function showForm(formType) {
-            document.getElementById('menu').style.display = 'none';
-            document.getElementById('form-container').style.display = 'block';
-            if (formType === 'fullname') {
-                document.getElementById('fullname-form').style.display = 'block';
-            } else if (formType === 'tariff' || formType === 'balance' || formType === 'refill') {
-                alert('Вы не авторизованы. Пожалуйста, авторизуйтесь.');
-                backToMenu();
-            } else if (formType === 'additional') {
-                document.getElementById('additional-services').style.display = 'block';
-            }
-        }
+  </div>
 
-        function nextStep(nextForm) {
-            document.getElementById('fullname-form').style.display = 'none';
-            document.getElementById('phone-form').style.display = 'none';
-            document.getElementById('document-form').style.display = 'none';
-            document.getElementById(nextForm + '-form').style.display = 'block';
-        }
+  <script>
+    let step = 0;
+    let formData = { fio: "", phone: "", docType: "", docNum: "" };
 
-        function submitForm() {
-            const formData = new FormData(document.getElementById('user-form'));
-            const data = {};
-            formData.forEach((value, key) => {
-                data[key] = value;
-            });
-            console.log('Form submitted:', data);
-            alert('Данные успешно отправлены!');
-            backToMenu();
-        }
+    function startForm() {
+      step = 1;
+      formData = { fio: "", phone: "", docType: "", docNum: "" };
+      show("form");
+      document.getElementById("form-text").innerText = "👤 Введите ФИО (только буквы):";
+      document.getElementById("form-input").value = "";
+    }
 
-        function showFAQ() {
-            document.getElementById('additional-services').style.display = 'none';
-            document.getElementById('faq').style.display = 'block';
-        }
+    function nextStep() {
+      let val = document.getElementById("form-input").value.trim();
+      if (!val) { alert("Поле не может быть пустым"); return; }
 
-        function showInstruction() {
-            alert('Инструкция:\n1. Нажмите «Обновить данные».\n2. Отправьте номер телефона.\n3. Выберите документ и введите его номер.\n4. Получите подтверждение.\nНа любом этапе вы можете нажать "Вернуться назад".');
-        }
+      if (step === 1) {
+        if (!/^[А-Яа-яЁё\s-]+$/.test(val)) { alert("ФИО только на русском"); return; }
+        formData.fio = val;
+        step = 2;
+        document.getElementById("form-text").innerText = "📞 Введите телефон (+7 или 7...):";
+        document.getElementById("form-input").value = "";
+      } else if (step === 2) {
+        if (!(val.startsWith("+7") || val.startsWith("7"))) { alert("Телефон должен начинаться с +7 или 7"); return; }
+        formData.phone = val;
+        step = 3;
+        document.getElementById("form-text").innerText = "Выберите документ:\n📄 Паспорт\n🧾 ИНН\n🟢 СНИЛС\nВведите название:";
+        document.getElementById("form-input").value = "";
+      } else if (step === 3) {
+        if (!["паспорт","Паспорт","ИНН","СНИЛС","снилс"].includes(val)) { alert("Введите Паспорт, ИНН или СНИЛС"); return; }
+        formData.docType = val;
+        step = 4;
+        document.getElementById("form-text").innerText = `Введите номер документа (${val}):`;
+        document.getElementById("form-input").value = "";
+      } else if (step === 4) {
+        formData.docNum = val;
+        localStorage.setItem("mksData", JSON.stringify(formData));
+        show("result");
+        document.getElementById("result-text").innerText =
+          "✅ Данные сохранены:\n\nФИО: " + formData.fio +
+          "\nТелефон: " + formData.phone +
+          "\nДокумент: " + formData.docType + " " + formData.docNum +
+          "\n\nПоследний шаг: подтвердите, что вы человек ✅";
+      }
+    }
 
-        function contactSupport() {
-            alert('Для связи с техподдержкой нажмите на кнопку ниже или используйте ссылку вручную!');
-        }
+    function unauthorized(act) {
+      show("result");
+      document.getElementById("result-text").innerText =
+        "⚠️ Мы не можем выполнить действие ("+act+") без авторизации.";
+    }
 
-        function backToMenu() {
-            document.getElementById('menu').style.display = 'block';
-            document.getElementById('form-container').style.display = 'none';
-            document.getElementById('additional-services').style.display = 'none';
-            document.getElementById('faq').style.display = 'none';
-            document.getElementById('fullname-form').style.display = 'none';
-            document.getElementById('phone-form').style.display = 'none';
-            document.getElementById('document-form').style.display = 'none';
-        }
-    </script>
+    function extraServices() {
+      show("result");
+      document.getElementById("result-text").innerText =
+        "🛠️ Доп. услуги:\n\n❓ FAQ\nℹ️ Инструкция\n📞 Техподдержка";
+    }
+
+    function backToMenu() { show("menu"); }
+
+    function show(section) {
+      ["menu","form","result"].forEach(id => document.getElementById(id).classList.add("hidden"));
+      document.getElementById(section).classList.remove("hidden");
+    }
+  </script>
 </body>
 </html>
