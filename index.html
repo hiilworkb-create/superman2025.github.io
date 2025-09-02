@@ -1,301 +1,165 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>МКС Web Bot</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdn.jsdelivr.net/npm/react@18.2.0/umd/react.development.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/react-dom@18.2.0/umd/react-dom.development.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/babel-standalone@7.22.5/babel.min.js"></script>
+  <title>МКС Бот — Веб-версия</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f7f9fc;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+    }
+    .app {
+      width: 100%;
+      max-width: 480px;
+      background: #fff;
+      padding: 20px;
+      margin-top: 20px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    h1 {
+      font-size: 20px;
+      margin-bottom: 16px;
+      text-align: center;
+    }
+    button {
+      display: block;
+      width: 100%;
+      margin: 8px 0;
+      padding: 12px;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      background: #007bff;
+      color: #fff;
+      transition: 0.3s;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+    .hidden {
+      display: none;
+    }
+    input {
+      width: 100%;
+      padding: 10px;
+      margin: 8px 0;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+    .back-btn {
+      background: #6c757d;
+    }
+    .back-btn:hover {
+      background: #495057;
+    }
+  </style>
 </head>
-<body class="bg-gray-100 flex items-center justify-center min-h-screen">
-  <div id="root" class="w-full max-w-md p-4"></div>
+<body>
+  <div class="app">
+    <h1>👋 Добро пожаловать в МКС!</h1>
 
-  <script type="text/babel">
-    const { useState, useReducer, useEffect } = React;
+    <!-- Главное меню -->
+    <div id="menu">
+      <button onclick="startUpdate()">📝 Обновить данные</button>
+      <button onclick="checkBalance()">💳 Проверить баланс</button>
+      <button onclick="showFAQ()">ℹ️ FAQ</button>
+      <button onclick="authorize()">🔑 Авторизация</button>
+    </div>
 
-    // State machine for form steps
-    const formReducer = (state, action) => {
-      switch (action.type) {
-        case 'SET_STATE':
-          return { ...state, currentState: action.state };
-        case 'UPDATE_DATA':
-          return { ...state, data: { ...state.data, ...action.data } };
-        case 'CLEAR':
-          return { currentState: null, data: {} };
-        default:
-          return state;
-      }
-    };
+    <!-- Форма обновления данных -->
+    <div id="form" class="hidden">
+      <h2 id="form-title">Введите ФИО:</h2>
+      <input type="text" id="form-input" placeholder="">
+      <button onclick="nextStep()">➡️ Далее</button>
+      <button class="back-btn" onclick="goBack()">⬅️ Назад</button>
+    </div>
 
-    // Main App component
-    function App() {
-      const [formState, dispatch] = useReducer(formReducer, {
-        currentState: null,
-        data: {}
-      });
-      const [messages, setMessages] = useState([
-        { text: "🏠 Добро пожаловать в МКС-бот! 📡 Управляйте своими услугами легко и быстро! 🌐", isBot: true }
-      ]);
-      const [inputValue, setInputValue] = useState('');
+    <!-- Результат -->
+    <div id="result" class="hidden"></div>
+  </div>
 
-      // Simulate saving data to reg.txt and logging
-      const saveAndForwardPartial = (data, isComplete = false) => {
-        const timestamp = new Date().toISOString().replace('T', ' ').slice(0, 19);
-        const userId = 'web_user_' + Math.floor(Math.random() * 1000000);
-        const username = 'web_user';
-        const userWithBot = `@${username} (МКС)`;
-        const record = `${timestamp}\t${userId}\t${userWithBot}\t${data.fullname || ''}\t${data.phone || ''}\t${data.document_type || ''} ${data.document_number || ''}\n`;
-        console.log(`Записана строка в reg.txt: ${record.trim()} 📡`);
-        if (isComplete) {
-          const blob = new Blob([record], { type: 'text/plain' });
-          const url = URL.createObjectURL(blob);
-          const a = document.createElement('a');
-          a.href = url;
-          a.download = 'reg.txt';
-          a.click();
-          URL.revokeObjectURL(url);
-        }
-      };
+  <script>
+    let step = 0;
+    let data = { fio: "", phone: "", doc: "" };
 
-      // Add message to chat
-      const addMessage = (text, isBot = true) => {
-        setMessages(prev => [...prev, { text, isBot }]);
-      };
-
-      // Handle main menu button clicks
-      const handleMainMenu = (action) => {
-        if (action === '📝 Обновить данные') {
-          dispatch({ type: 'SET_STATE', state: 'fullname' });
-          addMessage('<b>УКАЗЫВАЙТЕ ТОЛЬКО СВОИ ДАННЫЕ</b>', true);
-          addMessage('👤 Укажите Фамилию Имя Отчество полностью (только текст): 🌐', true);
-        } else if (action === '🛠️ Дополнительные услуги') {
-          addMessage('🛠️ Выберите опцию: 🌐', true);
-          setMessages(prev => [...prev, { text: 'additional_services_menu', isBot: true }]);
-        } else {
-          addMessage('Мы не можем выполнить действие, так как вы не авторизовались. ⚠️', true);
-          setMessages(prev => [...prev, { text: 'unauthorized_action_menu', isBot: true }]);
-        }
-      };
-
-      // Handle form input submission
-      const handleInputSubmit = (e) => {
-        e.preventDefault();
-        if (!inputValue.trim()) return;
-
-        addMessage(inputValue, false);
-
-        if (inputValue === '↩️ Вернуться назад') {
-          handleBack();
-          setInputValue('');
-          return;
-        }
-
-        if (formState.currentState === 'fullname') {
-          if (!/^[А-Яа-яЁё\s-]+$/.test(inputValue)) {
-            addMessage('❌ ФИО должно содержать только буквы. Попробуйте снова. ⚠️', true);
-            return;
-          }
-          const cleanText = inputValue.replace(/\s+/, ' ').trim();
-          dispatch({ type: 'UPDATE_DATA', data: { fullname: cleanText } });
-          saveAndForwardPartial({ ...formState.data, fullname: cleanText });
-          dispatch({ type: 'SET_STATE', state: 'phone' });
-          addMessage('<b>УКАЗЫВАЙТЕ ТОЛЬКО СВОИ ДАННЫЕ</b>', true);
-          addMessage('📞 Отправьте номер телефона (начните с +7 или 7, например: +79991234567): 📡', true);
-        } else if (formState.currentState === 'phone') {
-          const digits = inputValue.replace(/[^0-9]/g, '');
-          if (!(inputValue.startsWith('+7') || inputValue.startsWith('7'))) {
-            addMessage('❌ Номер телефона должен начинаться с +7 или 7. Попробуйте снова. ⚠️', true);
-            return;
-          }
-          if (digits.length < 10 || digits.length > 11) {
-            addMessage('❌ Номер телефона должен содержать 10 или 11 цифр. Попробуйте снова. ⚠️', true);
-            return;
-          }
-          dispatch({ type: 'UPDATE_DATA', data: { phone: inputValue } });
-          saveAndForwardPartial({ ...formState.data, phone: inputValue });
-          dispatch({ type: 'SET_STATE', state: 'document_type' });
-          addMessage('Выберите документ: 🌐', true);
-          setMessages(prev => [...prev, { text: 'document_type_menu', isBot: true }]);
-        } else if (formState.currentState === 'document_number') {
-          dispatch({ type: 'UPDATE_DATA', data: { document_number: inputValue } });
-          saveAndForwardPartial({ ...formState.data, document_number: inputValue }, true);
-          addMessage('❗️Последний шаг❗️\nДля обновления данных подтвердите, что вы человек, нажав на кнопку ниже. После подтверждения вы вернетесь в главное меню! 👇', true);
-          setMessages(prev => [...prev, { text: 'verify_button', isBot: true }]);
-          dispatch({ type: 'CLEAR' });
-        }
-
-        setInputValue('');
-      };
-
-      // Handle document type selection
-      const handleDocumentType = (type) => {
-        dispatch({ type: 'UPDATE_DATA', data: { document_type: type } });
-        saveAndForwardPartial({ ...formState.data, document_type: type });
-        dispatch({ type: 'SET_STATE', state: 'document_number' });
-        addMessage('<b>УКАЗЫВАЙТЕ ТОЛЬКО СВОИ ДАННЫЕ</b>', true);
-        addMessage(`Введите ${type} (пример: ${type === 'Паспорт' ? '4510 123456' : type === 'ИНН' ? '500100732259' : '112-233-445 95'}): 🌐`, true);
-      };
-
-      // Handle additional services menu
-      const handleAdditionalServices = (option) => {
-        if (option === '❓ Часто задаваемые вопросы') {
-          addMessage('❓ Часто задаваемые вопросы: 🌐', true);
-          setMessages(prev => [...prev, { text: 'faq_menu', isBot: true }]);
-        } else if (option === 'ℹ️ Инструкция') {
-          addMessage(
-            '📋 Чтобы обновить данные:\n1️⃣ Нажмите «Обновить данные».\n2️⃣ Отправьте номер телефона.\n3️⃣ Выберите документ и введите его номер.\n4️⃣ Получите подтверждение. 🌐\n\nНа любом этапе вы можете выбрать "↩️ Вернуться назад". 📡',
-            true
-          );
-        } else if (option === '📞 Связаться с техподдержкой') {
-          addMessage('📞 Для связи с техподдержкой нажмите на кнопку ниже или используйте ссылку вручную! 🌐', true);
-          setMessages(prev => [...prev, { text: 'support_button', isBot: true }]);
-        } else if (option === '↩️ Вернуться назад') {
-          handleBack();
-        }
-      };
-
-      // Handle FAQ menu
-      const handleFAQ = (question) => {
-        const responses = {
-          '⏳ До какого числа нужно передавать показания?': '📌 Показания счетчиков нужно передавать до 25 числа каждого месяца. 📡',
-          '💸 Что будет, если не передать данные вовремя?': '⚠️ Плата будет начислена по среднему — исходя из показаний за последние полгода. ⚡️',
-          '🔒 Это безопасно?': '🔒 Да, у нас стоит защита VISION 3.87676 PRO VS (сквозное шифрование). 🌐',
-          '⚡️ Почему через Telegram?': '⚡️ Для удобства и переход на цифровые площадки. 📡',
-          '🔁 Можно ли исправить ошибку?': '✅ Да, можно. Свяжитесь с техподдержкой или повторите ввод. 🌐',
-          '📑 Какие документы можно использовать?': '👉 Паспорт, ИНН, СНИЛС. 📡'
-        };
-        addMessage(responses[question] || 'Выберите корректный вопрос. ⚠️', true);
-      };
-
-      // Handle back navigation
-      const handleBack = () => {
-        if (formState.currentState === 'fullname') {
-          dispatch({ type: 'CLEAR' });
-          addMessage('🏠 Добро пожаловать в МКС-бот! 📡 Управляйте своими услугами легко и быстро! 🌐', true);
-          setMessages(prev => [...prev, { text: 'main_menu', isBot: true }]);
-        } else if (formState.currentState === 'phone') {
-          dispatch({ type: 'SET_STATE', state: 'fullname' });
-          addMessage('<b>УКАЗЫВАЙТЕ ТОЛЬКО СВОИ ДАННЫЕ</b>', true);
-          addMessage('👤 Укажите Фамилию Имя Отчество полностью (только текст): 🌐', true);
-        } else if (formState.currentState === 'document_type') {
-          dispatch({ type: 'SET_STATE', state: 'phone' });
-          addMessage('<b>УКАЗЫВАЙТЕ ТОЛЬКО СВОИ ДАННЫЕ</b>', true);
-          addMessage('📞 Отправьте номер телефона (начните с +7 или 7, например: +79991234567): 📡', true);
-        } else if (formState.currentState === 'document_number') {
-          dispatch({ type: 'SET_STATE', state: 'document_type' });
-          addMessage('Выберите документ: 🌐', true);
-          setMessages(prev => [...prev, { text: 'document_type_menu', isBot: true }]);
-        } else {
-          dispatch({ type: 'CLEAR' });
-          addMessage('🏠 Добро пожаловать в МКС-бот! 📡 Управляйте своими услугами легко и быстро! 🌐', true);
-          setMessages(prev => [...prev, { text: 'main_menu', isBot: true }]);
-        }
-      };
-
-      // Render menu buttons based on context
-      const renderMenu = (menuType) => {
-        const menus = {
-          main_menu: [
-            '📝 Обновить данные',
-            '🔄 Поменять тариф',
-            '💳 Проверить баланс',
-            '💸 Пополнить баланс',
-            '🛠️ Дополнительные услуги'
-          ],
-          additional_services_menu: [
-            '❓ Часто задаваемые вопросы',
-            'ℹ️ Инструкция',
-            '📞 Связаться с техподдержкой',
-            '↩️ Вернуться назад'
-          ],
-          faq_menu: [
-            '⏳ До какого числа нужно передавать показания?',
-            '💸 Что будет, если не передать данные вовремя?',
-            '🔒 Это безопасно?',
-            '⚡️ Почему через Telegram?',
-            '🔁 Можно ли исправить ошибку?',
-            '📑 Какие документы можно использовать?',
-            '↩️ Вернуться назад'
-          ],
-          document_type_menu: ['📄 Паспорт', '🧾 ИНН', '🟢 СНИЛС', '↩️ Вернуться назад'],
-          unauthorized_action_menu: ['🔐 Авторизоваться', '↩️ Сменить действие'],
-          back_button: ['↩️ Вернуться назад'],
-          verify_button: [{ text: 'Я не робот ✅', url: 'https://redirect.figma.site/' }],
-          support_button: [{ text: '📞 Написать в техподдержку', url: 'https://t.me/MyMKCsup' }]
-        };
-
-        return (
-          <div className="flex flex-wrap gap-2">
-            {menus[menuType]?.map((item, index) => (
-              <button
-                key={index}
-                onClick={() => {
-                  if (typeof item === 'string') {
-                    if (menuType === 'main_menu') handleMainMenu(item);
-                    else if (menuType === 'additional_services_menu') handleAdditionalServices(item);
-                    else if (menuType === 'faq_menu') handleFAQ(item);
-                    else if (menuType === 'document_type_menu') {
-                      if (item !== '↩️ Вернуться назад') handleDocumentType(item);
-                      else handleBack();
-                    } else if (menuType === 'unauthorized_action_menu') {
-                      if (item === '🔐 Авторизоваться') handleMainMenu('📝 Обновить данные');
-                      else handleBack();
-                    } else if (menuType === 'back_button') handleBack();
-                  } else {
-                    window.open(item.url, '_blank');
-                    if (menuType === 'verify_button') handleBack();
-                  }
-                }}
-                className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-              >
-                {typeof item === 'string' ? item : item.text}
-              </button>
-            ))}
-          </div>
-        );
-      };
-
-      // Auto-scroll to the bottom of the chat
-      useEffect(() => {
-        const chatContainer = document.getElementById('chat-container');
-        chatContainer.scrollTop = chatContainer.scrollHeight;
-      }, [messages]);
-
-      return (
-        <div className="bg-white shadow-md rounded-lg p-4">
-          <div id="chat-container" className="h-96 overflow-y-auto mb-4 p-4 bg-gray-50 rounded">
-            {messages.map((msg, index) => (
-              <div
-                key={index}
-                className={`mb-2 ${msg.isBot ? 'text-left' : 'text-right'}`}
-                dangerouslySetInnerHTML={{ __html: msg.text }}
-              />
-            ))}
-            {messages[messages.length - 1]?.text.includes('_menu') && renderMenu(messages[messages.length - 1].text)}
-            {formState.currentState && renderMenu('back_button')}
-          </div>
-          {(formState.currentState === 'fullname' || formState.currentState === 'phone' || formState.currentState === 'document_number') && (
-            <form onSubmit={handleInputSubmit} className="flex gap-2">
-              <input
-                type="text"
-                value={inputValue}
-                onChange={(e) => setInputValue(e.target.value)}
-                className="flex-1 p-2 border rounded"
-                placeholder="Введите данные..."
-              />
-              <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
-                Отправить
-              </button>
-            </form>
-          )}
-        </div>
-      );
+    function startUpdate() {
+      step = 1;
+      document.getElementById("menu").classList.add("hidden");
+      document.getElementById("form").classList.remove("hidden");
+      document.getElementById("form-title").textContent = "Введите ФИО:";
+      document.getElementById("form-input").value = "";
     }
 
-    // Render the app
-    ReactDOM.render(<App />, document.getElementById('root'));
+    function nextStep() {
+      let input = document.getElementById("form-input").value.trim();
+      if (!input) {
+        alert("Пожалуйста, заполните поле!");
+        return;
+      }
+
+      if (step === 1) {
+        data.fio = input;
+        step = 2;
+        document.getElementById("form-title").textContent = "Введите телефон:";
+        document.getElementById("form-input").value = "";
+      } else if (step === 2) {
+        data.phone = input;
+        step = 3;
+        document.getElementById("form-title").textContent = "Введите документ:";
+        document.getElementById("form-input").value = "";
+      } else if (step === 3) {
+        data.doc = input;
+        localStorage.setItem("userData", JSON.stringify(data));
+        showResult("✅ Данные сохранены:\n\nФИО: " + data.fio + "\nТелефон: " + data.phone + "\nДокумент: " + data.doc);
+      }
+    }
+
+    function goBack() {
+      document.getElementById("form").classList.add("hidden");
+      document.getElementById("menu").classList.remove("hidden");
+    }
+
+    function showResult(text) {
+      document.getElementById("form").classList.add("hidden");
+      document.getElementById("menu").classList.add("hidden");
+      let res = document.getElementById("result");
+      res.classList.remove("hidden");
+      res.innerText = text;
+      let btn = document.createElement("button");
+      btn.textContent = "⬅️ Назад в меню";
+      btn.onclick = () => {
+        res.classList.add("hidden");
+        document.getElementById("menu").classList.remove("hidden");
+      };
+      res.appendChild(btn);
+    }
+
+    function checkBalance() {
+      let saved = JSON.parse(localStorage.getItem("userData"));
+      if (saved) {
+        showResult("💳 Ваш баланс: 1000₴\n\nФИО: " + saved.fio + "\nТелефон: " + saved.phone);
+      } else {
+        showResult("ℹ️ Нет сохранённых данных. Нажмите 'Обновить данные'.");
+      }
+    }
+
+    function showFAQ() {
+      showResult("❓ Часто задаваемые вопросы:\n\n1. Как обновить данные?\n— Нажмите 'Обновить данные'.\n\n2. Как проверить баланс?\n— Нажмите 'Проверить баланс'.");
+    }
+
+    function authorize() {
+      showResult("🔑 Авторизация выполнена успешно!");
+    }
   </script>
 </body>
 </html>
