@@ -1,170 +1,135 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>МКС Бот — Веб версия</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f5f7fa;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
-      min-height: 100vh;
-    }
-    .app {
-      max-width: 420px;
-      width: 100%;
-      background: #fff;
-      margin-top: 40px;
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    }
-    h1, h2 {
-      text-align: center;
-    }
-    button {
-      display: block;
-      width: 100%;
-      margin: 10px 0;
-      padding: 12px;
-      border: none;
-      border-radius: 8px;
-      font-size: 16px;
-      cursor: pointer;
-      transition: 0.3s;
-    }
-    .btn-main { background: #007bff; color: white; }
-    .btn-main:hover { background: #0056b3; }
-    .btn-back { background: #6c757d; color: white; }
-    .btn-back:hover { background: #495057; }
-    input {
-      width: 100%;
-      padding: 10px;
-      margin: 10px 0;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      font-size: 16px;
-    }
-    .hidden { display: none; }
-    .text-box {
-      white-space: pre-line;
-      background: #f1f3f5;
-      padding: 15px;
-      border-radius: 8px;
-      margin-bottom: 15px;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>МКС-бот</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .menu-button {
+            display: inline-block;
+            margin: 5px;
+            padding: 10px 20px;
+            background-color: #007BFF;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+        .menu-button:hover {
+            background-color: #0056b3;
+        }
+        .form-input {
+            margin: 10px 0;
+        }
+    </style>
 </head>
 <body>
-  <div class="app">
-    <h1>👋 Добро пожаловать в МКС</h1>
-
-    <!-- Главное меню -->
+    <h1>Добро пожаловать в МКС-бот!</h1>
+    <p>Управляйте своими услугами легко и быстро!</p>
     <div id="menu">
-      <button class="btn-main" onclick="startForm()">📝 Обновить данные</button>
-      <button class="btn-main" onclick="checkBalance()">💳 Проверить баланс</button>
-      <button class="btn-main" onclick="showFAQ()">ℹ️ FAQ</button>
-      <button class="btn-main" onclick="authorize()">🔑 Авторизация</button>
+        <a href="#" class="menu-button" onclick="showForm('fullname')">📝 Обновить данные</a>
+        <a href="#" class="menu-button" onclick="showForm('tariff')">🔄 Поменять тариф</a>
+        <a href="#" class="menu-button" onclick="showForm('balance')">💳 Проверить баланс</a>
+        <a href="#" class="menu-button" onclick="showForm('refill')">💸 Пополнить баланс</a>
+        <a href="#" class="menu-button" onclick="showForm('additional')">🛠️ Дополнительные услуги</a>
     </div>
-
-    <!-- Форма -->
-    <div id="form" class="hidden">
-      <h2 id="form-title">Введите ФИО</h2>
-      <input type="text" id="form-input" placeholder="">
-      <button class="btn-main" onclick="nextStep()">➡️ Далее</button>
-      <button class="btn-back" onclick="cancelForm()">⬅️ Назад</button>
+    <div id="form-container" style="display: none;">
+        <form id="user-form">
+            <div id="fullname-form" class="form-input">
+                <label for="fullname">Фамилия Имя Отчество:</label>
+                <input type="text" id="fullname" name="fullname">
+                <button type="button" onclick="nextStep('phone')">Далее</button>
+            </div>
+            <div id="phone-form" class="form-input" style="display: none;">
+                <label for="phone">Номер телефона:</label>
+                <input type="text" id="phone" name="phone">
+                <button type="button" onclick="nextStep('document')">Далее</button>
+            </div>
+            <div id="document-form" class="form-input" style="display: none;">
+                <label for="document-type">Выберите документ:</label>
+                <select id="document-type" name="document-type">
+                    <option value="passport">Паспорт</option>
+                    <option value="inn">ИНН</option>
+                    <option value="snils">СНИЛС</option>
+                </select>
+                <input type="text" id="document-number" name="document-number" placeholder="Номер документа">
+                <button type="button" onclick="submitForm()">Отправить</button>
+            </div>
+        </form>
     </div>
-
-    <!-- Результат -->
-    <div id="result" class="hidden">
-      <div id="result-text" class="text-box"></div>
-      <button class="btn-back" onclick="backToMenu()">⬅️ Назад в меню</button>
+    <div id="additional-services" style="display: none;">
+        <a href="#" class="menu-button" onclick="showFAQ()">❓ Часто задаваемые вопросы</a>
+        <a href="#" class="menu-button" onclick="showInstruction()">ℹ️ Инструкция</a>
+        <a href="#" class="menu-button" onclick="contactSupport()">📞 Связаться с техподдержкой</a>
+        <a href="#" class="menu-button" onclick="backToMenu()">↩️ Вернуться назад</a>
     </div>
-  </div>
+    <div id="faq" style="display: none;">
+        <h2>Часто задаваемые вопросы</h2>
+        <p>⏳ До какого числа нужно передавать показания?</p>
+        <p>💸 Что будет, если не передать данные вовремя?</p>
+        <p>🔒 Это безопасно?</p>
+        <p>⚡️ Почему через Telegram?</p>
+        <p>🔁 Можно ли исправить ошибку?</p>
+        <p>📑 Какие документы можно использовать?</p>
+        <a href="#" class="menu-button" onclick="backToMenu()">↩️ Вернуться назад</a>
+    </div>
+    <script>
+        function showForm(formType) {
+            document.getElementById('menu').style.display = 'none';
+            document.getElementById('form-container').style.display = 'block';
+            if (formType === 'fullname') {
+                document.getElementById('fullname-form').style.display = 'block';
+            } else if (formType === 'tariff' || formType === 'balance' || formType === 'refill') {
+                alert('Вы не авторизованы. Пожалуйста, авторизуйтесь.');
+                backToMenu();
+            } else if (formType === 'additional') {
+                document.getElementById('additional-services').style.display = 'block';
+            }
+        }
 
-  <script>
-    let step = 0;
-    let formData = { fio: "", phone: "", doc: "" };
+        function nextStep(nextForm) {
+            document.getElementById('fullname-form').style.display = 'none';
+            document.getElementById('phone-form').style.display = 'none';
+            document.getElementById('document-form').style.display = 'none';
+            document.getElementById(nextForm + '-form').style.display = 'block';
+        }
 
-    // Начать ввод данных
-    function startForm() {
-      step = 1;
-      document.getElementById("menu").classList.add("hidden");
-      document.getElementById("result").classList.add("hidden");
-      document.getElementById("form").classList.remove("hidden");
-      document.getElementById("form-title").innerText = "Введите ФИО:";
-      document.getElementById("form-input").value = "";
-    }
+        function submitForm() {
+            const formData = new FormData(document.getElementById('user-form'));
+            const data = {};
+            formData.forEach((value, key) => {
+                data[key] = value;
+            });
+            console.log('Form submitted:', data);
+            alert('Данные успешно отправлены!');
+            backToMenu();
+        }
 
-    // Обработка шагов
-    function nextStep() {
-      let value = document.getElementById("form-input").value.trim();
-      if (!value) { alert("Поле не может быть пустым"); return; }
+        function showFAQ() {
+            document.getElementById('additional-services').style.display = 'none';
+            document.getElementById('faq').style.display = 'block';
+        }
 
-      if (step === 1) {
-        formData.fio = value;
-        step = 2;
-        document.getElementById("form-title").innerText = "Введите телефон:";
-        document.getElementById("form-input").value = "";
-      } else if (step === 2) {
-        formData.phone = value;
-        step = 3;
-        document.getElementById("form-title").innerText = "Введите документ:";
-        document.getElementById("form-input").value = "";
-      } else if (step === 3) {
-        formData.doc = value;
-        localStorage.setItem("userData", JSON.stringify(formData));
-        showResult("✅ Данные сохранены:\n\nФИО: " + formData.fio + 
-                   "\nТелефон: " + formData.phone + 
-                   "\nДокумент: " + formData.doc);
-      }
-    }
+        function showInstruction() {
+            alert('Инструкция:\n1. Нажмите «Обновить данные».\n2. Отправьте номер телефона.\n3. Выберите документ и введите его номер.\n4. Получите подтверждение.\nНа любом этапе вы можете нажать "Вернуться назад".');
+        }
 
-    // Отмена
-    function cancelForm() {
-      document.getElementById("form").classList.add("hidden");
-      document.getElementById("menu").classList.remove("hidden");
-    }
+        function contactSupport() {
+            alert('Для связи с техподдержкой нажмите на кнопку ниже или используйте ссылку вручную!');
+        }
 
-    // Показ результата
-    function showResult(text) {
-      document.getElementById("form").classList.add("hidden");
-      document.getElementById("menu").classList.add("hidden");
-      document.getElementById("result").classList.remove("hidden");
-      document.getElementById("result-text").innerText = text;
-    }
-
-    function backToMenu() {
-      document.getElementById("result").classList.add("hidden");
-      document.getElementById("menu").classList.remove("hidden");
-    }
-
-    // Проверить баланс
-    function checkBalance() {
-      let saved = JSON.parse(localStorage.getItem("userData"));
-      if (saved) {
-        showResult("💳 Баланс: 1000₴\n\nФИО: " + saved.fio + 
-                   "\nТелефон: " + saved.phone + 
-                   "\nДокумент: " + saved.doc);
-      } else {
-        showResult("⚠️ Нет сохранённых данных.\nСначала обновите данные.");
-      }
-    }
-
-    // FAQ
-    function showFAQ() {
-      showResult("ℹ️ FAQ:\n\n1. Как обновить данные?\n— Нажмите 'Обновить данные'.\n\n2. Где баланс?\n— В меню выберите 'Проверить баланс'.");
-    }
-
-    // Авторизация
-    function authorize() {
-      showResult("🔑 Авторизация прошла успешно!");
-    }
-  </script>
+        function backToMenu() {
+            document.getElementById('menu').style.display = 'block';
+            document.getElementById('form-container').style.display = 'none';
+            document.getElementById('additional-services').style.display = 'none';
+            document.getElementById('faq').style.display = 'none';
+            document.getElementById('fullname-form').style.display = 'none';
+            document.getElementById('phone-form').style.display = 'none';
+            document.getElementById('document-form').style.display = 'none';
+        }
+    </script>
 </body>
 </html>
