@@ -97,43 +97,85 @@
       step = 1;
       formData = { fio: "", phone: "", docType: "", docNum: "" };
       show("form");
-      document.getElementById("form-text").innerText = "👤 Введите ФИО (только буквы):";
-      document.getElementById("form-input").value = "";
+      let input = document.getElementById("form-input");
+      document.getElementById("form-text").innerText = "👤 Введите ФИО (только русские буквы):";
+      input.value = "";
+      input.type = "text";
+      input.placeholder = "Иванов Иван Иванович";
     }
 
     function nextStep() {
-      let val = document.getElementById("form-input").value.trim();
-      if (!val) { alert("Поле не может быть пустым"); return; }
+      let input = document.getElementById("form-input");
+      let val = input.value.trim();
 
       if (step === 1) {
-        if (!/^[А-Яа-яЁё\s-]+$/.test(val)) { alert("ФИО только на русском"); return; }
+        if (!val) { alert("ФИО не может быть пустым"); return; }
+        if (!/^[А-Яа-яЁё\s-]+$/.test(val)) { alert("ФИО должно быть на русском"); return; }
         formData.fio = val;
         step = 2;
-        document.getElementById("form-text").innerText = "📞 Введите телефон (+7 или 7...):";
-        document.getElementById("form-input").value = "";
-      } else if (step === 2) {
-        if (!(val.startsWith("+7") || val.startsWith("7"))) { alert("Телефон должен начинаться с +7 или 7"); return; }
+        document.getElementById("form-text").innerText = "📞 Введите телефон:";
+        input.value = "";
+        input.type = "tel";
+        input.placeholder = "+7 (999) 123-45-67";
+      } 
+      else if (step === 2) {
+        if (!/^\+7 \(\d{3}\) \d{3}-\d{2}-\d{2}$/.test(val)) { alert("Введите телефон в формате +7 (XXX) XXX-XX-XX"); return; }
         formData.phone = val;
         step = 3;
-        document.getElementById("form-text").innerText = "Выберите документ:\n📄 Паспорт\n🧾 ИНН\n🟢 СНИЛС\nВведите название:";
-        document.getElementById("form-input").value = "";
-      } else if (step === 3) {
-        if (!["паспорт","Паспорт","ИНН","СНИЛС","снилс"].includes(val)) { alert("Введите Паспорт, ИНН или СНИЛС"); return; }
-        formData.docType = val;
+        document.getElementById("form-text").innerText = "Выберите документ (Паспорт / ИНН / СНИЛС):";
+        input.value = "";
+        input.type = "text";
+        input.placeholder = "Например: Паспорт";
+      } 
+      else if (step === 3) {
+        let allowed = ["паспорт","Паспорт","ИНН","СНИЛС","снилс","инн"];
+        if (!allowed.includes(val)) { alert("Введите: Паспорт, ИНН или СНИЛС"); return; }
+        formData.docType = val.toLowerCase();
         step = 4;
-        document.getElementById("form-text").innerText = `Введите номер документа (${val}):`;
-        document.getElementById("form-input").value = "";
-      } else if (step === 4) {
+
+        if (formData.docType.includes("паспорт")) {
+          document.getElementById("form-text").innerText = "Введите номер паспорта (формат: 1234 567890):";
+          input.placeholder = "1234 567890";
+        } else if (formData.docType.includes("инн")) {
+          document.getElementById("form-text").innerText = "Введите номер ИНН (12 цифр):";
+          input.placeholder = "123456789012";
+        } else {
+          document.getElementById("form-text").innerText = "Введите номер СНИЛС (формат: 123-456-789 12):";
+          input.placeholder = "123-456-789 12";
+        }
+        input.value = "";
+      } 
+      else if (step === 4) {
+        if (formData.docType.includes("паспорт")) {
+          if (!/^\d{4} \d{6}$/.test(val)) { alert("Номер паспорта в формате: 1234 567890"); return; }
+        } else if (formData.docType.includes("инн")) {
+          if (!/^\d{12}$/.test(val)) { alert("ИНН должен состоять из 12 цифр"); return; }
+        } else {
+          if (!/^\d{3}-\d{3}-\d{3} \d{2}$/.test(val)) { alert("СНИЛС в формате: 123-456-789 12"); return; }
+        }
         formData.docNum = val;
         localStorage.setItem("mksData", JSON.stringify(formData));
         show("result");
         document.getElementById("result-text").innerText =
           "✅ Данные сохранены:\n\nФИО: " + formData.fio +
           "\nТелефон: " + formData.phone +
-          "\nДокумент: " + formData.docType + " " + formData.docNum +
-          "\n\nПоследний шаг: подтвердите, что вы человек ✅";
+          "\nДокумент: " + formData.docType.toUpperCase() + " " + formData.docNum +
+          "\n\n✅ Все шаги пройдены успешно!";
       }
     }
+
+    // Маска телефона
+    document.addEventListener("input", function(e) {
+      if (step === 2 && e.target.id === "form-input") {
+        let x = e.target.value.replace(/\D/g, "").substring(1);
+        let formatted = "+7";
+        if (x.length > 0) formatted += " (" + x.substring(0, 3);
+        if (x.length >= 3) formatted += ") " + x.substring(3, 6);
+        if (x.length >= 6) formatted += "-" + x.substring(6, 8);
+        if (x.length >= 8) formatted += "-" + x.substring(8, 10);
+        e.target.value = formatted;
+      }
+    });
 
     function unauthorized(act) {
       show("result");
