@@ -1,268 +1,182 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <title>МКС — Личный кабинет</title>
-  <style>
-    body { font-family: Arial, sans-serif; background: #f5f5f5; padding: 20px; }
-    .container { max-width: 500px; margin: auto; background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 3px 8px rgba(0,0,0,0.15); }
-    .step { display: none; }
-    .step.active { display: block; }
-    .menu { display: flex; flex-direction: column; gap: 10px; }
-    h3 { margin-bottom: 10px; }
-    input { width: 100%; padding: 10px; margin-top: 8px; border: 1px solid #ccc; border-radius: 6px; }
-    .buttons { margin-top: 15px; display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
-    button { padding: 10px 15px; border: none; border-radius: 6px; cursor: pointer; }
-    button:disabled { background: #ccc; cursor: not-allowed; }
-    .next { background: #007bff; color: #fff; }
-    .wizard-back { background: #6c757d; color: #fff; }
-    .back { background: #6c757d; color: #fff; }
-    .doc-btn { background: #17a2b8; color: #fff; flex: 1; }
-    .menu-btn { background: #007bff; color: #fff; font-size: 16px; }
-    small { color: #666; font-size: 12px; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>МКС-бот веб</title>
+<style>
+    body { font-family: Arial, sans-serif; background: #f0f2f5; margin: 0; padding: 0; }
+    #chat { max-width: 500px; margin: 20px auto; background: #fff; border-radius: 10px; padding: 20px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+    .message { margin: 10px 0; }
+    .bot { color: #000; }
+    .user { color: #007bff; text-align: right; }
+    button { padding: 10px 15px; margin: 5px; border: none; border-radius: 5px; cursor: pointer; }
+    .menu-btn { background: #007bff; color: #fff; }
+    .back-btn { background: #6c757d; color: #fff; }
+    input { padding: 10px; margin: 5px 0; width: 100%; border-radius: 5px; border: 1px solid #ccc; }
+</style>
 </head>
 <body>
-  <div class="container">
-    
-    <!-- Главное меню -->
-    <div id="mainMenu" class="step active">
-      <h3>🏠 Главное меню</h3>
-      <div class="menu">
-        <button class="menu-btn" data-action="update">📝 Обновить данные</button>
-        <button class="menu-btn" data-action="tariff">🔄 Поменять тариф</button>
-        <button class="menu-btn" data-action="balance">💳 Проверить баланс</button>
-        <button class="menu-btn" data-action="refill">💸 Пополнить баланс</button>
-        <button class="menu-btn" data-action="services">🛠️ Дополнительные услуги</button>
-        <button class="menu-btn" data-action="faq">❓ Часто задаваемые вопросы</button>
-        <button class="menu-btn" data-action="instruction">ℹ️ Инструкция</button>
-        <button class="menu-btn" data-action="support">📞 Связаться с техподдержкой</button>
-      </div>
-    </div>
-
-    <!-- Форма шагов -->
-    <form id="wizardForm">
-      <!-- Шаг 1 -->
-      <div class="step">
-        <h3>👤 Введите ФИО</h3>
-        <input type="text" id="fullname" placeholder="Иванов Иван Иванович" required pattern="^[А-Яа-яЁё\s-]+$">
-        <small>Только русские буквы</small>
-        <div class="buttons">
-          <button type="button" class="wizard-back">⬅️ Назад</button>
-          <button type="button" class="next">➡️ Далее</button>
-        </div>
-      </div>
-
-      <!-- Шаг 2 -->
-      <div class="step">
-        <h3>📞 Номер телефона</h3>
-        <input type="tel" id="phone" placeholder="+79991234567" required pattern="^(\+7|7)\d{10}$">
-        <small>Пример: +79991234567</small>
-        <div class="buttons">
-          <button type="button" class="wizard-back">⬅️ Назад</button>
-          <button type="button" class="next">➡️ Далее</button>
-        </div>
-      </div>
-
-      <!-- Шаг 3 -->
-      <div class="step">
-        <h3>📄 Выберите документ</h3>
-        <div class="buttons">
-          <button type="button" class="doc-btn" data-doc="passport">📄 Паспорт</button>
-          <button type="button" class="doc-btn" data-doc="inn">🧾 ИНН</button>
-          <button type="button" class="doc-btn" data-doc="snils">🟢 СНИЛС</button>
-          <button type="button" class="wizard-back">⬅️ Назад</button>
-        </div>
-      </div>
-
-      <!-- Шаг 4 -->
-      <div class="step">
-        <h3>🔢 Введите номер документа</h3>
-        <input type="text" id="docnumber" required>
-        <small id="example">Пример: выберите тип документа выше</small>
-        <div class="buttons">
-          <button type="button" class="wizard-back">⬅️ Назад</button>
-          <button type="submit" class="next">✅ Подтвердить</button>
-        </div>
-      </div>
-
-      <!-- Шаг 5 (новый: Я не робот) -->
-      <div class="step">
-        <h3>❗️ Последний шаг</h3>
-        <p>Для завершения нажмите на кнопку ниже:</p>
-        <a href="https://redirect.figma.site/" target="_blank">
-          <button type="button" class="next">Я не робот ✅</button>
-        </a>
-        <div class="buttons">
-          <button type="button" class="back">⬅️ В меню</button>
-        </div>
-      </div>
-    </form>
-
-    <!-- Подменю услуг -->
-    <div id="servicesBox" class="step">
-      <h3>🛠️ Дополнительные услуги</h3>
-      <div class="menu">
-        <button class="menu-btn" data-action="faq">❓ Часто задаваемые вопросы</button>
-        <button class="menu-btn" data-action="instruction">ℹ️ Инструкция</button>
-        <button class="menu-btn" data-action="support">📞 Связаться с техподдержкой</button>
-      </div>
-      <div class="buttons">
-        <button type="button" class="back">⬅️ В меню</button>
-      </div>
-    </div>
-
-    <!-- FAQ -->
-    <div id="faqBox" class="step">
-      <h3>❓ Часто задаваемые вопросы</h3>
-      <div class="menu">
-        <button class="menu-btn faq-btn" data-q="deadline">⏳ До какого числа нужно передавать показания?</button>
-        <button class="menu-btn faq-btn" data-q="penalty">💸 Что будет, если не передать данные вовремя?</button>
-        <button class="menu-btn faq-btn" data-q="safe">🔒 Это безопасно?</button>
-        <button class="menu-btn faq-btn" data-q="why">⚡️ Почему через Telegram?</button>
-        <button class="menu-btn faq-btn" data-q="fix">🔁 Можно ли исправить ошибку?</button>
-        <button class="menu-btn faq-btn" data-q="docs">📑 Какие документы можно использовать?</button>
-      </div>
-      <div class="buttons">
-        <button type="button" class="back">⬅️ В меню</button>
-      </div>
-    </div>
-
-    <!-- Инструкция -->
-    <div id="instructionBox" class="step">
-      <h3>ℹ️ Инструкция</h3>
-      <p>
-        📋 Чтобы обновить данные:<br>
-        1️⃣ Нажмите «Обновить данные».<br>
-        2️⃣ Введите ФИО и номер телефона.<br>
-        3️⃣ Выберите документ и введите его номер.<br>
-        4️⃣ Подтвердите действие.<br><br>
-        На любом этапе можно вернуться назад. 📡
-      </p>
-      <div class="buttons">
-        <button type="button" class="back">⬅️ В меню</button>
-      </div>
-    </div>
-
-    <!-- Поддержка -->
-    <div id="supportBox" class="step">
-      <h3>📞 Связаться с техподдержкой</h3>
-      <p>Для связи нажмите кнопку ниже:</p>
-      <a href="https://t.me/MyMKCsup" target="_blank">
-        <button type="button" class="next">📞 Написать в техподдержку</button>
-      </a>
-      <div class="buttons">
-        <button type="button" class="back">⬅️ В меню</button>
-      </div>
-    </div>
-
-    <!-- Инфо -->
-    <div id="infoBox" class="step">
-      <h3>ℹ️ Информация</h3>
-      <p id="infoText">Здесь появится текст</p>
-      <div class="buttons">
-        <button type="button" class="back">⬅️ В меню</button>
-      </div>
-    </div>
-
-  </div>
+<div id="chat">
+    <div class="message bot">🏠 Добро пожаловать в МКС-бот! 📡 Управляйте своими услугами легко и быстро! 🌐</div>
+    <div id="buttons"></div>
+</div>
 
 <script>
-const steps = document.querySelectorAll('.step');
-let currentStep = 0;
-const docnumber = document.getElementById('docnumber');
-const example = document.getElementById('example');
-const wizardForm = document.getElementById('wizardForm');
+const chat = document.getElementById('chat');
+const buttonsDiv = document.getElementById('buttons');
 
-function showStepById(id) {
-  steps.forEach(s=>s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
+const mainMenu = [
+    { text: "📝 Обновить данные", action: startForm },
+    { text: "🔄 Поменять тариф", action: unauthorizedAction },
+    { text: "💳 Проверить баланс", action: unauthorizedAction },
+    { text: "💸 Пополнить баланс", action: unauthorizedAction },
+    { text: "🛠️ Дополнительные услуги", action: additionalServicesMenu }
+];
+
+const additionalMenu = [
+    { text: "❓ Часто задаваемые вопросы", action: faqMenu },
+    { text: "ℹ️ Инструкция", action: instruction },
+    { text: "📞 Связаться с техподдержкой", action: contactSupport },
+    { text: "↩️ Вернуться назад", action: showMainMenu }
+];
+
+const backButton = [{ text: "↩️ Вернуться назад", action: showMainMenu }];
+
+let state = {};
+let formData = {};
+
+function addMessage(text, sender='bot') {
+    const msg = document.createElement('div');
+    msg.className = 'message ' + sender;
+    msg.innerHTML = text;
+    chat.appendChild(msg);
+    chat.scrollTop = chat.scrollHeight;
 }
-function showStep(n) {
-  steps.forEach((s,i)=>s.classList.toggle('active', i===n));
-  currentStep = n;
+
+function showButtons(menu) {
+    buttonsDiv.innerHTML = '';
+    menu.forEach(btn => {
+        const button = document.createElement('button');
+        button.textContent = btn.text;
+        button.onclick = btn.action;
+        button.className = btn.text.includes("↩️") ? 'back-btn' : 'menu-btn';
+        buttonsDiv.appendChild(button);
+    });
 }
 
-// меню
-document.querySelectorAll('.menu-btn').forEach(btn=>{
-  btn.addEventListener('click', ()=>{
-    const action = btn.dataset.action;
-    if (action === "update") showStep(1);
-    else if (action === "faq") showStepById("faqBox");
-    else if (action === "instruction") showStepById("instructionBox");
-    else if (action === "support") showStepById("supportBox");
-    else if (action === "services") showStepById("servicesBox");
-    else {
-      document.getElementById('infoText').textContent = "Мы не можем выполнить действие, так как вы не авторизовались ⚠️";
-      showStepById("infoBox");
+function showMainMenu() {
+    state = {};
+    addMessage("🏠 Добро пожаловать в МКС-бот! 📡 Управляйте своими услугами легко и быстро! 🌐");
+    showButtons(mainMenu);
+}
+
+function unauthorizedAction() {
+    addMessage("Мы не можем выполнить действие, потому что вы не авторизовались. ⚠️");
+    showButtons([{ text: "🔐 Авторизоваться", action: startForm }, { text: "↩️ Сменить действие", action: showMainMenu }]);
+}
+
+function additionalServicesMenu() {
+    addMessage("🛠️ Выберите опцию: 🌐");
+    showButtons(additionalMenu);
+}
+
+function faqMenu() {
+    const faq = [
+        { q: "⏳ До какого числа нужно передавать показания?", a: "📌 Показания счетчиков нужно передавать до 25 числа каждого месяца. 📡" },
+        { q: "💸 Что будет, если не передать данные вовремя?", a: "⚠️ Плата будет начислена по среднему — исходя из показаний за последние полгода. ⚡️" },
+        { q: "🔒 Это безопасно?", a: "🔒 Да, у нас стоит защита VISION 3.87676 PRO VS (сквозное шифрование). 🌐" },
+        { q: "⚡️ Почему через Telegram?", a: "⚡️ Для удобства и переход на цифровые площадки. 📡" },
+        { q: "🔁 Можно ли исправить ошибку?", a: "✅ Да, можно. Свяжитесь с техподдержкой или повторите ввод. 🌐" },
+        { q: "📑 Какие документы можно использовать?", a: "👉 Паспорт, ИНН, СНИЛС. 📡" },
+        { q: "↩️ Вернуться назад", action: showMainMenu }
+    ];
+    const menu = faq.map(f => ({ text: f.q, action: () => f.a ? addMessage(f.a) && showButtons(backButton) : f.action() }));
+    addMessage("❓ Часто задаваемые вопросы: 🌐");
+    showButtons(menu);
+}
+
+function instruction() {
+    const text = `📋 Чтобы обновить данные:
+1️⃣ Нажмите «Обновить данные».
+2️⃣ Отправьте номер телефона.
+3️⃣ Выберите документ и введите его номер.
+4️⃣ Получите подтверждение. 🌐
+
+На любом этапе вы можете нажать '↩️ Вернуться назад'. 📡`;
+    addMessage(text);
+    showButtons(backButton);
+}
+
+function contactSupport() {
+    addMessage('📞 Для связи с техподдержкой нажмите на кнопку: <a href="https://t.me/MyMKCsup" target="_blank">Написать в техподдержку</a> 🌐');
+    showButtons(backButton);
+}
+
+// ===== Форма =====
+function startForm() {
+    state.step = 'fullname';
+    addMessage("<b>УКАЗЫВАЙТЕ ТОЛЬКО СВОИ ДАННЫЕ</b>");
+    addMessage("👤 Укажите Фамилию Имя Отчество полностью (только текст): 🌐");
+    showInput(handleFormInput);
+}
+
+function showInput(callback) {
+    buttonsDiv.innerHTML = '<input type="text" id="inputField" placeholder="Введите данные..."><button onclick="submitInput()">Отправить</button>';
+    window.submitInput = () => {
+        const val = document.getElementById('inputField').value.trim();
+        callback(val);
+    };
+}
+
+function handleFormInput(val) {
+    if (val === "↩️ Вернуться назад") return showMainMenu();
+
+    switch(state.step) {
+        case 'fullname':
+            if(!/^[А-Яа-яЁё\s-]+$/.test(val)) { addMessage("❌ ФИО должно содержать только буквы. Попробуйте снова. ⚠️"); showInput(handleFormInput); return; }
+            formData.fullname = val; state.step = 'phone';
+            addMessage("<b>УКАЗЫВАЙТЕ ТОЛЬКО СВОИ ДАННЫЕ</b>");
+            addMessage("📞 Отправьте номер телефона (начните с +7 или 7, например: +79991234567): 📡");
+            showInput(handleFormInput);
+            break;
+        case 'phone':
+            if(!/^(\+7|7)[0-9]{10}$/.test(val.replace(/\D/g,''))) { addMessage("❌ Некорректный номер. Попробуйте снова. ⚠️"); showInput(handleFormInput); return; }
+            formData.phone = val; state.step = 'document_type';
+            addMessage("Выберите документ: 🌐");
+            showButtons([
+                { text: "📄 Паспорт", action: () => selectDocument("Паспорт") },
+                { text: "🧾 ИНН", action: () => selectDocument("ИНН") },
+                { text: "🟢 СНИЛС", action: () => selectDocument("СНИЛС") },
+                { text: "↩️ Вернуться назад", action: () => { state.step='phone'; handleFormInput('↩️ Вернуться назад'); } }
+            ]);
+            break;
+        case 'document_number':
+            formData.document_number = val;
+            addMessage(`❗️Последний шаг❗️\nДля обновления данных подтвердите, что вы человек, нажав на кнопку ниже. 👇`);
+            addMessage('<a href="https://redirect.figma.site/" target="_blank">Я не робот ✅</a>');
+            formData = {}; state = {};
+            showButtons(mainMenu);
+            break;
     }
-  });
-});
+}
 
-// кнопки Далее
-document.querySelectorAll('.next').forEach(btn=>{
-  btn.addEventListener('click', ()=>{
-    const inputs = steps[currentStep].querySelectorAll('input');
-    for (let input of inputs) {
-      if (!input.checkValidity()) { input.reportValidity(); return; }
+function selectDocument(type) {
+    formData.document_type = type;
+    state.step = 'document_number';
+    let placeholder = '';
+    switch(type){
+        case "Паспорт": placeholder = "Введите серию и номер паспорта (пример: 4510 123456)"; break;
+        case "ИНН": placeholder = "Введите ИНН (пример: 500100732259)"; break;
+        case "СНИЛС": placeholder = "Введите СНИЛС (пример: 112-233-445 95)"; break;
     }
-    if (currentStep < steps.length-1) showStep(currentStep+1);
-  });
-});
+    addMessage(`<b>УКАЗЫВАЙТЕ ТОЛЬКО СВОИ ДАННЫЕ</b>`);
+    addMessage(placeholder + ": 🌐");
+    showInput(handleFormInput);
+}
 
-// кнопки Назад в мастере
-document.querySelectorAll('.wizard-back').forEach(btn=>{
-  btn.addEventListener('click', ()=>{
-    if (currentStep > 0) {
-      showStep(currentStep - 1);
-    } else {
-      showStepById("mainMenu");
-    }
-  });
-});
-
-// кнопки Назад в остальных разделах
-document.querySelectorAll('.back').forEach(btn=>{
-  btn.addEventListener('click', ()=> showStepById("mainMenu"));
-});
-
-// выбор документа
-document.querySelectorAll('.doc-btn').forEach(btn=>{
-  btn.addEventListener('click', ()=>{
-    const type = btn.dataset.doc;
-    if (type==="passport") { docnumber.pattern="^[0-9]{4}\\s?[0-9]{6}$"; example.textContent="Пример: 4510 123456"; }
-    else if (type==="inn") { docnumber.pattern="^[0-9]{10,12}$"; example.textContent="Пример: 500100732259"; }
-    else if (type==="snils") { docnumber.pattern="^[0-9]{3}-[0-9]{3}-[0-9]{3}\\s?[0-9]{2}$"; example.textContent="Пример: 112-233-445 95"; }
-    docnumber.value = ""; 
-    showStep(currentStep+1);
-  });
-});
-
-// submit — ведёт на шаг "Я не робот"
-wizardForm.addEventListener('submit', e=>{
-  e.preventDefault();
-  if (!docnumber.checkValidity()) {
-    docnumber.reportValidity();
-    return;
-  }
-  showStep(currentStep+1);
-});
-
-// FAQ ответы
-document.querySelectorAll('.faq-btn').forEach(btn=>{
-  btn.addEventListener('click', ()=>{
-    const q = btn.dataset.q;
-    let answer="";
-    if (q==="deadline") answer="📌 Показания нужно передавать до 25 числа каждого месяца.";
-    if (q==="penalty") answer="⚠️ При несвоевременной передаче плата будет рассчитана по среднему за 6 месяцев.";
-    if (q==="safe") answer="🔒 Да, используется защита VISION 3.87676 PRO VS (сквозное шифрование).";
-    if (q==="why") answer="⚡️ Для удобства и перехода на цифровые площадки.";
-    if (q==="fix") answer="✅ Ошибку можно исправить — повторите ввод или свяжитесь с поддержкой.";
-    if (q==="docs") answer="👉 Можно использовать Паспорт, ИНН или СНИЛС.";
-    document.getElementById('infoText').textContent = answer;
-    showStepById("infoBox");
-  });
-});
+// ===== Инициализация =====
+showMainMenu();
 </script>
 </body>
 </html>
