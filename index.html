@@ -4,22 +4,79 @@
   <meta charset="UTF-8">
   <title>МКС — Веб-бот</title>
   <style>
-    body { font-family: Arial, sans-serif; background: #f5f5f5; margin: 0; padding: 20px; }
-    .container { max-width: 500px; margin: auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-    h2 { text-align: center; }
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+    }
+    .container {
+      width: 100%;
+      max-width: 500px;
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.1);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 15px;
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 10px;
+    }
     .hidden { display: none; }
-    .btn { display: block; width: 100%; margin: 5px 0; padding: 10px; background: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer; text-align: center; font-size: 16px; }
+    .btn {
+      width: 100%;
+      max-width: 320px;
+      padding: 12px;
+      margin: 5px 0;
+      background: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      text-align: center;
+      text-decoration: none;
+      font-size: 15px;
+    }
     .btn:hover { background: #45a049; }
-    .back { background: #777; }
-    input { width: 95%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 5px; }
-    .faq, .services { margin-top: 10px; }
-    .confirm-text { text-align: center; line-height: 1.6; display: flex; flex-direction: column; gap: 5px; }
+    .btn.back { background: #777; }
+    input {
+      width: 100%;
+      max-width: 320px;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      text-align: center;
+    }
+    .step, .services, .faq, .instruction, .confirm-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+    }
+    .confirm-text {
+      text-align: center;
+      line-height: 1.6;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
   </style>
 </head>
 <body>
   <div class="container">
     <h2>📡 МКС — Веб-бот</h2>
-    <div id="menu">
+
+    <!-- Главное меню -->
+    <div id="menu" class="step">
       <button class="btn" onclick="startForm()">📝 Обновить данные</button>
       <button class="btn">🔄 Поменять тариф</button>
       <button class="btn">💳 Проверить баланс</button>
@@ -27,26 +84,24 @@
       <button class="btn" onclick="showServices()">🛠️ Дополнительные услуги</button>
     </div>
 
-    <!-- шаг 1 -->
-    <div id="form-step1" class="hidden">
+    <!-- Шаг 1 -->
+    <div id="form-step1" class="hidden step">
       <p><b>УКАЗЫВАЙТЕ ТОЛЬКО СВОИ ДАННЫЕ</b></p>
-      <label>ФИО:</label>
-      <input type="text" id="fullname">
+      <input type="text" id="fullname" placeholder="Введите ФИО полностью">
       <button class="btn" onclick="nextStep(2)">Далее</button>
       <button class="btn back" onclick="goHome()">↩️ Вернуться назад</button>
     </div>
 
-    <!-- шаг 2 -->
-    <div id="form-step2" class="hidden">
+    <!-- Шаг 2 -->
+    <div id="form-step2" class="hidden step">
       <p><b>УКАЗЫВАЙТЕ ТОЛЬКО СВОИ ДАННЫЕ</b></p>
-      <label>Телефон (+7...):</label>
-      <input type="text" id="phone">
+      <input type="text" id="phone" placeholder="+79991234567">
       <button class="btn" onclick="nextStep(3)">Далее</button>
       <button class="btn back" onclick="backStep(1)">↩️ Вернуться назад</button>
     </div>
 
-    <!-- шаг 3 -->
-    <div id="form-step3" class="hidden">
+    <!-- Шаг 3 -->
+    <div id="form-step3" class="hidden step">
       <p>Выберите документ:</p>
       <button class="btn" onclick="chooseDoc('Паспорт')">📄 Паспорт</button>
       <button class="btn" onclick="chooseDoc('ИНН')">🧾 ИНН</button>
@@ -54,19 +109,19 @@
       <button class="btn back" onclick="backStep(2)">↩️ Вернуться назад</button>
     </div>
 
-    <!-- шаг 4 -->
-    <div id="form-step4" class="hidden">
+    <!-- Шаг 4 -->
+    <div id="form-step4" class="hidden step">
       <p><b>УКАЗЫВАЙТЕ ТОЛЬКО СВОИ ДАННЫЕ</b></p>
       <label id="doc-label"></label>
-      <input type="text" id="doc-number">
+      <input type="text" id="doc-number" placeholder="Введите номер документа">
       <button class="btn" onclick="finishForm()">Отправить</button>
       <button class="btn back" onclick="backStep(3)">↩️ Вернуться назад</button>
     </div>
 
-    <!-- финальный шаг -->
-    <div id="confirm" class="hidden">
+    <!-- Подтверждение -->
+    <div id="confirm" class="hidden confirm-box">
       <div class="confirm-text">
-        <span>❗ Последний шаг ❗</span>
+        <span><b>❗ Последний шаг ❗</b></span>
         <span>Для обновления данных подтвердите,</span>
         <span>что вы человек 👇</span>
       </div>
@@ -74,8 +129,8 @@
       <button class="btn back" onclick="goHome()">🏠 Главное меню</button>
     </div>
 
-    <!-- сервисы -->
-    <div id="services" class="hidden">
+    <!-- Дополнительные услуги -->
+    <div id="services" class="hidden services">
       <h3>🛠️ Дополнительные услуги</h3>
       <button class="btn" onclick="showFAQ()">❓ Часто задаваемые вопросы</button>
       <button class="btn" onclick="showInstruction()">ℹ️ Инструкция</button>
@@ -84,7 +139,7 @@
     </div>
 
     <!-- FAQ -->
-    <div id="faq" class="hidden">
+    <div id="faq" class="hidden faq">
       <h3>❓ Вопросы</h3>
       <p>⏳ До какого числа нужно передавать показания? — До 25 числа каждого месяца.</p>
       <p>💸 Что будет, если не передать данные вовремя? — Начисляется по среднему за 6 мес.</p>
@@ -95,8 +150,8 @@
       <button class="btn back" onclick="showServices()">↩️ Вернуться назад</button>
     </div>
 
-    <!-- инструкция -->
-    <div id="instruction" class="hidden">
+    <!-- Инструкция -->
+    <div id="instruction" class="hidden instruction">
       <h3>ℹ️ Инструкция</h3>
       <p>📋 Чтобы обновить данные:<br>
         1️⃣ Нажмите «Обновить данные».<br>
@@ -114,14 +169,8 @@
     function hideAll() {
       document.querySelectorAll('.container > div').forEach(d => d.classList.add('hidden'));
     }
-
-    function goHome() {
-      hideAll(); document.getElementById("menu").classList.remove("hidden");
-    }
-
-    function startForm() {
-      hideAll(); document.getElementById("form-step1").classList.remove("hidden");
-    }
+    function goHome() { hideAll(); document.getElementById("menu").classList.remove("hidden"); }
+    function startForm() { hideAll(); document.getElementById("form-step1").classList.remove("hidden"); }
 
     function nextStep(step) {
       if (step === 2) {
@@ -135,36 +184,21 @@
         hideAll(); document.getElementById("form-step3").classList.remove("hidden");
       }
     }
-
-    function backStep(step) {
-      hideAll();
-      document.getElementById("form-step" + step).classList.remove("hidden");
-    }
-
+    function backStep(step) { hideAll(); document.getElementById("form-step" + step).classList.remove("hidden"); }
     function chooseDoc(type) {
       formData.document = type;
       document.getElementById("doc-label").innerText = "Введите " + type + ":";
       hideAll(); document.getElementById("form-step4").classList.remove("hidden");
     }
-
     function finishForm() {
       formData.docNumber = document.getElementById("doc-number").value.trim();
       if (!formData.docNumber) { alert("Введите номер документа"); return; }
       console.log("Собранные данные:", formData);
       hideAll(); document.getElementById("confirm").classList.remove("hidden");
     }
-
-    function showServices() {
-      hideAll(); document.getElementById("services").classList.remove("hidden");
-    }
-
-    function showFAQ() {
-      hideAll(); document.getElementById("faq").classList.remove("hidden");
-    }
-
-    function showInstruction() {
-      hideAll(); document.getElementById("instruction").classList.remove("hidden");
-    }
+    function showServices() { hideAll(); document.getElementById("services").classList.remove("hidden"); }
+    function showFAQ() { hideAll(); document.getElementById("faq").classList.remove("hidden"); }
+    function showInstruction() { hideAll(); document.getElementById("instruction").classList.remove("hidden"); }
 
     goHome();
   </script>
