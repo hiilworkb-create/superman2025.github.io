@@ -1,206 +1,106 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <title>МКС — Веб-бот</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f5f5f5;
-      margin: 0;
-      padding: 20px;
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
-      min-height: 100vh;
-    }
-    .container {
-      width: 100%;
-      max-width: 500px;
-      background: white;
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 0 15px rgba(0,0,0,0.1);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 15px;
-    }
-    h2 {
-      text-align: center;
-      margin-bottom: 10px;
-    }
-    .hidden { display: none; }
-    .btn {
-      width: 100%;
-      max-width: 320px;
-      padding: 12px;
-      margin: 5px 0;
-      background: #4CAF50;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      text-align: center;
-      text-decoration: none;
-      font-size: 15px;
-    }
-    .btn:hover { background: #45a049; }
-    .btn.back { background: #777; }
-    input {
-      width: 100%;
-      max-width: 320px;
-      padding: 10px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      text-align: center;
-    }
-    .step, .services, .faq, .instruction, .confirm-box {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 10px;
-      width: 100%;
-    }
-    .confirm-text {
-      text-align: center;
-      line-height: 1.6;
-      display: flex;
-      flex-direction: column;
-      gap: 5px;
-    }
-  </style>
+<meta charset="UTF-8">
+<title>МКС — клиентский кабинет</title>
+<style>
+  body { font-family: sans-serif; background:#f5f7fa; margin:0; padding:20px; }
+  .menu, .submenu { display: grid; gap: 10px; max-width: 400px; margin: 20px auto; }
+  button {
+    padding: 12px; border: none; border-radius: 8px;
+    background: #0066ff; color:white; font-size: 15px;
+    cursor: pointer;
+  }
+  button:hover { background:#004ecc; }
+  .hidden { display: none; }
+  .card {
+    background:white; border-radius:12px; padding:20px;
+    box-shadow:0 4px 20px rgba(0,0,0,.1);
+    margin-top:20px;
+  }
+</style>
+<script>
+function show(id) {
+  document.querySelectorAll('.card').forEach(c => c.classList.add('hidden'));
+  document.getElementById(id).classList.remove('hidden');
+}
+</script>
 </head>
 <body>
-  <div class="container">
-    <h2>📡 МКС — Веб-бот</h2>
 
-    <!-- Главное меню -->
-    <div id="menu" class="step">
-      <button class="btn" onclick="startForm()">📝 Обновить данные</button>
-      <button class="btn">🔄 Поменять тариф</button>
-      <button class="btn">💳 Проверить баланс</button>
-      <button class="btn">💸 Пополнить баланс</button>
-      <button class="btn" onclick="showServices()">🛠️ Дополнительные услуги</button>
-    </div>
+<h2 style="text-align:center;">🏠 Добро пожаловать в МКС</h2>
 
-    <!-- Шаг 1 -->
-    <div id="form-step1" class="hidden step">
-      <p><b>УКАЗЫВАЙТЕ ТОЛЬКО СВОИ ДАННЫЕ</b></p>
-      <input type="text" id="fullname" placeholder="Введите ФИО полностью">
-      <button class="btn" onclick="nextStep(2)">Далее</button>
-      <button class="btn back" onclick="goHome()">↩️ Вернуться назад</button>
-    </div>
+<div class="menu">
+  <button onclick="show('update')">📝 Обновить данные</button>
+  <button onclick="show('tariff')">🔄 Поменять тариф</button>
+  <button onclick="show('balance')">💳 Проверить баланс</button>
+  <button onclick="show('refill')">💸 Пополнить баланс</button>
+  <button onclick="show('services')">🛠️ Дополнительные услуги</button>
+</div>
 
-    <!-- Шаг 2 -->
-    <div id="form-step2" class="hidden step">
-      <p><b>УКАЗЫВАЙТЕ ТОЛЬКО СВОИ ДАННЫЕ</b></p>
-      <input type="text" id="phone" placeholder="+79991234567">
-      <button class="btn" onclick="nextStep(3)">Далее</button>
-      <button class="btn back" onclick="backStep(1)">↩️ Вернуться назад</button>
-    </div>
+<div id="update" class="card hidden">
+  <h3>Обновить данные</h3>
+  <form>
+    <label>ФИО<br><input type="text" name="fio"></label><br><br>
+    <label>Телефон<br><input type="tel" name="phone" placeholder="+7..."></label><br><br>
+    <label>Email<br><input type="email" name="email"></label><br><br>
+    <button type="submit">Отправить</button>
+  </form>
+  <button onclick="show(null)">↩️ Вернуться назад</button>
+</div>
 
-    <!-- Шаг 3 -->
-    <div id="form-step3" class="hidden step">
-      <p>Выберите документ:</p>
-      <button class="btn" onclick="chooseDoc('Паспорт')">📄 Паспорт</button>
-      <button class="btn" onclick="chooseDoc('ИНН')">🧾 ИНН</button>
-      <button class="btn" onclick="chooseDoc('СНИЛС')">🟢 СНИЛС</button>
-      <button class="btn back" onclick="backStep(2)">↩️ Вернуться назад</button>
-    </div>
+<div id="tariff" class="card hidden">
+  <h3>Поменять тариф</h3>
+  <p>Мы не можем поменять тариф без авторизации.</p>
+  <button onclick="show(null)">↩️ Вернуться назад</button>
+</div>
 
-    <!-- Шаг 4 -->
-    <div id="form-step4" class="hidden step">
-      <p><b>УКАЗЫВАЙТЕ ТОЛЬКО СВОИ ДАННЫЕ</b></p>
-      <label id="doc-label"></label>
-      <input type="text" id="doc-number" placeholder="Введите номер документа">
-      <button class="btn" onclick="finishForm()">Отправить</button>
-      <button class="btn back" onclick="backStep(3)">↩️ Вернуться назад</button>
-    </div>
+<div id="balance" class="card hidden">
+  <h3>Проверить баланс</h3>
+  <p>Мы не можем проверить баланс без авторизации.</p>
+  <button onclick="show(null)">↩️ Вернуться назад</button>
+</div>
 
-    <!-- Подтверждение -->
-    <div id="confirm" class="hidden confirm-box">
-      <div class="confirm-text">
-        <span><b>❗ Последний шаг ❗</b></span>
-        <span>Для обновления данных подтвердите,</span>
-        <span>что вы человек 👇</span>
-      </div>
-      <a class="btn" href="https://redirect.figma.site/" target="_blank">Я не робот ✅</a>
-      <button class="btn back" onclick="goHome()">🏠 Главное меню</button>
-    </div>
+<div id="refill" class="card hidden">
+  <h3>Пополнить баланс</h3>
+  <p>Мы не можем пополнить без авторизации.</p>
+  <button onclick="show(null)">↩️ Вернуться назад</button>
+</div>
 
-    <!-- Дополнительные услуги -->
-    <div id="services" class="hidden services">
-      <h3>🛠️ Дополнительные услуги</h3>
-      <button class="btn" onclick="showFAQ()">❓ Часто задаваемые вопросы</button>
-      <button class="btn" onclick="showInstruction()">ℹ️ Инструкция</button>
-      <a class="btn" href="https://t.me/MyMKCsup" target="_blank">📞 Связаться с техподдержкой</a>
-      <button class="btn back" onclick="goHome()">↩️ Вернуться назад</button>
-    </div>
-
-    <!-- FAQ -->
-    <div id="faq" class="hidden faq">
-      <h3>❓ Вопросы</h3>
-      <p>⏳ До какого числа нужно передавать показания? — До 25 числа каждого месяца.</p>
-      <p>💸 Что будет, если не передать данные вовремя? — Начисляется по среднему за 6 мес.</p>
-      <p>🔒 Это безопасно? — Да, используется шифрование.</p>
-      <p>⚡️ Почему через Telegram? — Для удобства.</p>
-      <p>🔁 Можно ли исправить ошибку? — Да, можно повторить ввод.</p>
-      <p>📑 Какие документы можно использовать? — Паспорт, ИНН, СНИЛС.</p>
-      <button class="btn back" onclick="showServices()">↩️ Вернуться назад</button>
-    </div>
-
-    <!-- Инструкция -->
-    <div id="instruction" class="hidden instruction">
-      <h3>ℹ️ Инструкция</h3>
-      <p>📋 Чтобы обновить данные:<br>
-        1️⃣ Нажмите «Обновить данные».<br>
-        2️⃣ Введите ФИО.<br>
-        3️⃣ Введите телефон.<br>
-        4️⃣ Выберите документ и его номер.<br>
-        5️⃣ Подтвердите, что вы человек.</p>
-      <button class="btn back" onclick="showServices()">↩️ Вернуться назад</button>
-    </div>
+<div id="services" class="card hidden">
+  <h3>Дополнительные услуги</h3>
+  <div class="submenu">
+    <button onclick="show('faq')">❓ Часто задаваемые вопросы</button>
+    <button onclick="show('instruction')">ℹ️ Инструкция</button>
+    <button onclick="show('support')">📞 Связаться с техподдержкой</button>
+    <button onclick="show(null)">↩️ Вернуться назад</button>
   </div>
+</div>
 
-  <script>
-    let formData = { fullname: "", phone: "", document: "", docNumber: "" };
+<div id="faq" class="card hidden">
+  <h3>Часто задаваемые вопросы</h3>
+  <ul>
+    <li>До какого числа нужно передавать показания? — До 25 числа.</li>
+    <li>Что будет, если не передать данные вовремя? — Плата начислится по среднему.</li>
+    <li>Это безопасно? — Да, данные защищены.</li>
+    <li>Почему через веб? — Для удобства.</li>
+  </ul>
+  <button onclick="show('services')">↩️ Вернуться назад</button>
+</div>
 
-    function hideAll() {
-      document.querySelectorAll('.container > div').forEach(d => d.classList.add('hidden'));
-    }
-    function goHome() { hideAll(); document.getElementById("menu").classList.remove("hidden"); }
-    function startForm() { hideAll(); document.getElementById("form-step1").classList.remove("hidden"); }
+<div id="instruction" class="card hidden">
+  <h3>Инструкция</h3>
+  <p>1. Нажмите «Обновить данные»<br>
+     2. Заполните форму<br>
+     3. Получите подтверждение</p>
+  <button onclick="show('services')">↩️ Вернуться назад</button>
+</div>
 
-    function nextStep(step) {
-      if (step === 2) {
-        formData.fullname = document.getElementById("fullname").value.trim();
-        if (!formData.fullname) { alert("Введите ФИО"); return; }
-        hideAll(); document.getElementById("form-step2").classList.remove("hidden");
-      }
-      if (step === 3) {
-        formData.phone = document.getElementById("phone").value.trim();
-        if (!formData.phone.startsWith("+7") && !formData.phone.startsWith("7")) { alert("Телефон должен начинаться с +7 или 7"); return; }
-        hideAll(); document.getElementById("form-step3").classList.remove("hidden");
-      }
-    }
-    function backStep(step) { hideAll(); document.getElementById("form-step" + step).classList.remove("hidden"); }
-    function chooseDoc(type) {
-      formData.document = type;
-      document.getElementById("doc-label").innerText = "Введите " + type + ":";
-      hideAll(); document.getElementById("form-step4").classList.remove("hidden");
-    }
-    function finishForm() {
-      formData.docNumber = document.getElementById("doc-number").value.trim();
-      if (!formData.docNumber) { alert("Введите номер документа"); return; }
-      console.log("Собранные данные:", formData);
-      hideAll(); document.getElementById("confirm").classList.remove("hidden");
-    }
-    function showServices() { hideAll(); document.getElementById("services").classList.remove("hidden"); }
-    function showFAQ() { hideAll(); document.getElementById("faq").classList.remove("hidden"); }
-    function showInstruction() { hideAll(); document.getElementById("instruction").classList.remove("hidden"); }
+<div id="support" class="card hidden">
+  <h3>Техподдержка</h3>
+  <p>📞 Напишите нам в <a href="#">Telegram</a></p>
+  <button onclick="show('services')">↩️ Вернуться назад</button>
+</div>
 
-    goHome();
-  </script>
 </body>
 </html>
